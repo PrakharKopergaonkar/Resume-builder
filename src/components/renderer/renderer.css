@@ -1,0 +1,263 @@
+/* Resume renderer. Plain CSS (not Tailwind) so screen and print output stay identical.
+   All sizes are in pt/em so the PDF matches the on-screen sheet. */
+
+.resume-page {
+  box-sizing: border-box;
+  width: var(--r-page-w);
+  min-height: var(--r-page-h);
+  padding: var(--r-margin-y) var(--r-margin-x);
+  background: #fff;
+  color: #1f2328;
+  font-family: var(--r-font);
+  font-size: var(--r-size);
+  line-height: var(--r-line);
+  text-align: left;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.resume-page *,
+.resume-page *::before,
+.resume-page *::after {
+  box-sizing: border-box;
+}
+
+@media print {
+  .resume-page {
+    width: auto;
+    min-height: 0;
+    padding: 0;
+  }
+}
+
+.resume-page a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.resume-page h1,
+.resume-page h2,
+.resume-page p,
+.resume-page ul {
+  margin: 0;
+  padding: 0;
+}
+
+/* ---------- shared pieces ---------- */
+.r-name {
+  font-size: 2.3em;
+  line-height: 1.1;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+.r-title {
+  font-size: 1.15em;
+  color: var(--r-accent);
+  margin-top: 0.15em;
+}
+.r-contacts {
+  font-size: 0.92em;
+  color: #4b5563;
+}
+.r-section {
+  margin-top: calc(1.15em * var(--r-gap));
+}
+.r-section-title {
+  font-size: 1.05em;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--r-accent);
+  margin-bottom: 0.45em !important;
+  break-after: avoid;
+}
+.r-entry {
+  break-inside: avoid;
+}
+.r-entry + .r-entry {
+  margin-top: calc(0.75em * var(--r-gap));
+}
+.r-entry-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 1em;
+  align-items: baseline;
+}
+.r-entry-title {
+  font-weight: 700;
+}
+.r-entry-org {
+  font-weight: 600;
+  color: #374151;
+}
+.r-entry-meta {
+  flex-shrink: 0;
+  font-size: 0.92em;
+  color: #6b7280;
+  white-space: nowrap;
+}
+.r-entry-sub {
+  font-size: 0.92em;
+  color: #6b7280;
+}
+.r-rich {
+  margin-top: 0.25em;
+}
+.r-rich p + p {
+  margin-top: 0.35em;
+}
+.r-rich ul,
+.r-rich ol {
+  padding-left: 1.2em !important;
+  margin: 0.2em 0 0 0 !important;
+}
+.r-rich ul {
+  list-style: disc;
+}
+.r-rich ol {
+  list-style: decimal;
+}
+.r-rich li + li {
+  margin-top: 0.15em;
+}
+.r-rich li p {
+  margin: 0;
+}
+
+.r-skills {
+  list-style: none;
+}
+.r-skills-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  column-gap: 1.2em;
+  row-gap: 0.15em;
+}
+.r-skills-grid li::before {
+  content: "•";
+  color: var(--r-accent);
+  margin-right: 0.45em;
+}
+.r-skills-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.6em;
+}
+.r-skills-list li + li {
+  margin-top: 0.15em;
+}
+.r-level {
+  display: inline-flex;
+  gap: 0.2em;
+}
+.r-level span {
+  width: 0.55em;
+  height: 0.55em;
+  border-radius: 50%;
+  background: #e5e7eb;
+}
+.r-level span.on {
+  background: var(--r-accent);
+}
+
+/* ---------- editor-only affordances ---------- */
+.r-interactive {
+  cursor: pointer;
+  border-radius: 4px;
+  outline: 1px dashed transparent;
+  outline-offset: 3px;
+  transition: outline-color 120ms;
+}
+.r-interactive:hover {
+  outline-color: color-mix(in srgb, var(--r-accent) 55%, transparent);
+}
+.r-interactive.r-active {
+  outline: 2px solid var(--r-accent);
+}
+
+/* ---------- Classic ---------- */
+.t-classic .r-header {
+  text-align: center;
+  padding-bottom: 0.6em;
+}
+.t-classic .r-contacts {
+  margin-top: 0.4em;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  column-gap: 0.5em;
+}
+.t-classic .r-contacts span + span::before {
+  content: "|";
+  color: #d1d5db;
+  margin-right: 0.5em;
+}
+.t-classic .r-section-title {
+  border-bottom: 1.5px solid var(--r-accent);
+  padding-bottom: 0.15em;
+}
+
+/* ---------- Modern ---------- */
+.t-modern .r-header {
+  border-left: 6px solid var(--r-accent);
+  padding: 0.1em 0 0.2em 0.9em;
+  margin-bottom: 0.4em;
+}
+.t-modern .r-name {
+  font-weight: 300;
+  font-size: 2.6em;
+}
+.t-modern .r-name strong {
+  font-weight: 700;
+  color: var(--r-accent);
+}
+.t-modern .r-title {
+  color: #374151;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.95em;
+}
+.t-modern .r-contacts {
+  margin-top: 0.5em;
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 1.2em;
+}
+.t-modern .r-section {
+  display: grid;
+  grid-template-columns: 8.5em minmax(0, 1fr);
+  column-gap: 1.2em;
+}
+.t-modern .r-section-title {
+  font-size: 0.95em;
+  text-align: right;
+  padding-top: 0.1em;
+  margin-bottom: 0 !important;
+}
+
+/* ---------- Sidebar ---------- */
+.t-sidebar .r-header {
+  padding-bottom: 0.8em;
+  margin-bottom: 0.4em;
+  border-bottom: 3px solid var(--r-accent);
+}
+.t-sidebar .r-columns {
+  display: grid;
+  grid-template-columns: 32% minmax(0, 1fr);
+  column-gap: 1.6em;
+}
+.t-sidebar .r-col-left {
+  border-right: 1px solid #e5e7eb;
+  padding-right: 1.2em;
+}
+.t-sidebar .r-contacts {
+  list-style: none;
+  overflow-wrap: anywhere;
+}
+.t-sidebar .r-contacts li + li {
+  margin-top: 0.25em;
+}
+.t-sidebar .r-col-left .r-entry-head {
+  display: block;
+}

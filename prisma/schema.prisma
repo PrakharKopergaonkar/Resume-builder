@@ -1,0 +1,20 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Resume {
+  id         String   @id @default(uuid())
+  name       String
+  templateId String   @default("classic")
+  /// ResumeStyle (see src/types/resume.ts)
+  style      Json
+  /// ResumeContent (see src/types/resume.ts)
+  content    Json
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
