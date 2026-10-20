@@ -5,6 +5,8 @@ import { arrayMove } from "@dnd-kit/sortable";
 import { useEditor } from "@/store/editor";
 import type { ResumeContent, Section } from "@/types/resume";
 import { Icon, IconButton } from "@/components/ui";
+import { cx } from "@/lib/cx";
+import styles from "./ContentPanel.module.scss";
 import { HeaderForm, SectionForm } from "./forms";
 import { DragHandle, SortableList, type HandleProps } from "./Sortable";
 
@@ -15,7 +17,7 @@ export function ContentPanel({ content }: { content: ResumeContent }) {
   const edit = useEditor((s) => s.edit);
 
   return (
-    <div className="space-y-2 p-4">
+    <div className={styles.panel}>
       <Card id="header" title="Contact details" open={active === "header"} onToggle={() => setActive(active === "header" ? null : "header")}>
         <HeaderForm header={content.header} />
       </Card>
@@ -25,7 +27,7 @@ export function ContentPanel({ content }: { content: ResumeContent }) {
         onMove={(a, b) => edit((d) => void (d.content.sections = arrayMove(d.content.sections, a, b)))}
       >
         {(section, index, handle) => (
-          <div className="pt-2">
+          <div className={styles.rowGap}>
             <Card
               id={section.id}
               title={section.title}
@@ -74,13 +76,13 @@ function Card({
 
   const bodyId = `section-body-${id}`;
   return (
-    <div ref={ref} className={`rounded-xl border bg-white shadow-sm ${open ? "border-blue-300 ring-1 ring-blue-200" : "border-neutral-200"}`}>
-      <div className="flex items-center gap-1 px-2 py-1.5">
-        {handle ? <DragHandle handle={handle} label={`Reorder ${title}`} /> : <span className="w-6" />}
+    <div ref={ref} className={cx(styles.card, open && styles.cardOpen)}>
+      <div className={styles.cardHeader}>
+        {handle ? <DragHandle handle={handle} label={`Reorder ${title}`} /> : <span className={styles.handleSpacer} />}
         {section && open ? (
           <input
             aria-label="Section title"
-            className="min-w-0 flex-1 rounded px-1.5 py-1 text-[15px] font-semibold text-neutral-900 hover:bg-neutral-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-600/20"
+            className={styles.titleInput}
             value={section.title}
             onChange={(e) =>
               edit((d) => {
@@ -95,7 +97,7 @@ function Card({
             onClick={onToggle}
             aria-expanded={open}
             aria-controls={bodyId}
-            className={`min-w-0 flex-1 truncate px-1.5 py-1 text-left text-[15px] font-semibold ${section?.hidden ? "text-neutral-400 line-through" : "text-neutral-900"}`}
+            className={cx(styles.titleButton, section?.hidden && styles.titleHidden)}
           >
             {title || "Untitled section"}
           </button>
@@ -119,7 +121,7 @@ function Card({
         <IconButton icon={open ? "chevronDown" : "chevronRight"} label={open ? "Collapse" : "Expand"} onClick={onToggle} aria-expanded={open} aria-controls={bodyId} />
       </div>
       {open && (
-        <div id={bodyId} className="border-t border-neutral-100 px-4 pb-4 pt-3">
+        <div id={bodyId} className={styles.cardBody}>
           {children}
         </div>
       )}
@@ -129,7 +131,7 @@ function Card({
 
 export function EmptySections() {
   return (
-    <p className="flex items-center gap-2 px-4 text-sm text-neutral-500">
+    <p className={styles.empty}>
       <Icon name="plus" /> Use “Add section” to start your resume.
     </p>
   );

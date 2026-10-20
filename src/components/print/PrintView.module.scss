@@ -1,0 +1,29 @@
+@use "../../styles/tokens" as *;
+
+.error {
+  padding: 2rem;
+  color: $red-700;
+  @include text-sm;
+}
+
+.root {
+  display: flex;
+  justify-content: center;
+  background: $neutral-200;
+  padding-block: 2rem;
+
+  // The printed PDF is just the sheet: no grey backdrop, no shadow.
+  @media print {
+    display: block;
+    background: $white;
+    padding-block: 0;
+  }
+}
+
+.sheet {
+  box-shadow: $shadow-lg;
+
+  @media print {
+    box-shadow: none;
+  }
+}

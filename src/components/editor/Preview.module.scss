@@ -1,0 +1,88 @@
+@use "../../styles/tokens" as *;
+
+.root {
+  display: flex;
+  height: 100%;
+  min-height: 0;
+  flex-direction: column;
+}
+
+.bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  border-bottom: 1px solid $neutral-200;
+  background: alpha($white, 80%);
+  padding: 0.375rem 1rem;
+  backdrop-filter: blur(8px);
+  @include text-sm;
+}
+
+.zoom {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.zoomValue {
+  width: 3rem;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  color: $neutral-700;
+}
+
+.options {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: $neutral-600;
+}
+
+.pageCount {
+  font-variant-numeric: tabular-nums;
+}
+
+.breakToggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.scroller {
+  min-height: 0;
+  flex: 1;
+  overflow: auto;
+  background: alpha($neutral-200, 70%);
+  padding: 1.5rem;
+}
+
+.zoomBox {
+  margin-inline: auto;
+  width: fit-content;
+}
+
+.sheet {
+  position: relative;
+  box-shadow: $shadow-xl;
+}
+
+.pageBreak {
+  pointer-events: none;
+  position: absolute;
+  left: 0;
+  right: 0;
+  border-top: 2px dashed alpha($rose-400, 80%);
+}
+
+.pageBreakLabel {
+  position: absolute;
+  right: 0.25rem;
+  top: -1.25rem;
+  border-radius: 0.25rem;
+  background: $rose-500;
+  padding-inline: 0.375rem;
+  font-size: 11px;
+  font-weight: 500;
+  color: $white;
+}

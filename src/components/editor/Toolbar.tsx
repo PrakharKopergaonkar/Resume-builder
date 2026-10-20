@@ -5,6 +5,8 @@ import { useState } from "react";
 import { api } from "@/lib/api";
 import { useEditor, type SaveState } from "@/store/editor";
 import { Button, Icon, IconButton } from "@/components/ui";
+import { cx } from "@/lib/cx";
+import styles from "./Toolbar.module.scss";
 
 const SAVE_LABEL: Record<SaveState, string> = { saved: "Saved", unsaved: "Unsaved changes", saving: "Saving…", error: "Save failed" };
 
@@ -24,11 +26,11 @@ export function Toolbar() {
   };
 
   return (
-    <header className="flex h-14 shrink-0 items-center gap-3 border-b border-neutral-200 bg-white px-3">
-      <Link href="/" className="inline-flex h-9 items-center gap-1.5 rounded-md px-2 text-sm font-medium text-neutral-700 hover:bg-neutral-100">
+    <header className={styles.toolbar}>
+      <Link href="/" className={styles.back}>
         <Icon name="arrowLeft" /> My Resumes
       </Link>
-      <div className="h-6 w-px bg-neutral-200" />
+      <div className={styles.divider} />
       <input
         aria-label="Resume name"
         value={draftName ?? name}
@@ -41,22 +43,22 @@ export function Toolbar() {
             e.currentTarget.blur();
           }
         }}
-        className="min-w-0 max-w-xs flex-1 rounded px-2 py-1 font-semibold text-neutral-900 hover:bg-neutral-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-600/20"
+        className={styles.nameInput}
       />
       <span
         role="status"
-        className={`flex items-center gap-1 text-xs ${saveState === "error" ? "text-red-600" : "text-neutral-500"}`}
+        className={cx(styles.status, saveState === "error" && styles.statusError)}
         data-save-state={saveState}
       >
-        {saveState === "saved" && <Icon name="check" className="h-3.5 w-3.5" />}
-        {saveState === "error" && <Icon name="alert" className="h-3.5 w-3.5" />}
+        {saveState === "saved" && <Icon name="check" size="xs" />}
+        {saveState === "error" && <Icon name="alert" size="xs" />}
         {SAVE_LABEL[saveState]}
       </span>
 
-      <div className="ml-auto flex items-center gap-1">
+      <div className={styles.rail}>
         <IconButton icon="undo" label="Undo (⌘Z)" disabled={!canUndo} onClick={undo} />
         <IconButton icon="redo" label="Redo (⇧⌘Z)" disabled={!canRedo} onClick={redo} />
-        <div className="mx-1 h-6 w-px bg-neutral-200" />
+        <div className={cx(styles.divider, styles.dividerInset)} />
         <Button variant="secondary" onClick={() => window.open(api.printUrl(id), "_blank")}>
           <Icon name="print" /> Print
         </Button>

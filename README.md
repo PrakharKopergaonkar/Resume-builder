@@ -28,6 +28,7 @@ npm run dev          # http://localhost:3000
   - Autosave about 800 ms after you stop typing.
   - Undo and redo (⌘Z / ⇧⌘Z when focus is outside a text field).
   - Zoom and page-break guides in the preview.
+  - Drag the divider between the form panel and the preview to resize them (320–720 px; the preview keeps at least 420 px). Arrow keys also work on the divider, double-click resets, and the width is remembered per browser.
 - **Design:** three templates (Classic, Modern, Sidebar), accent color, font, font size, section and line spacing, A4 or US Letter, and left/right column choice for the Sidebar template.
 - **PDF:** `GET /api/resumes/:id/pdf`. Headless Chrome prints `/print/[id]`, which uses the same `<ResumeRenderer>` as the preview, so the PDF matches what you see.
 
@@ -36,12 +37,13 @@ npm run dev          # http://localhost:3000
 ```
 prisma/                 schema, migrations, seed
 src/app/                pages (dashboard, editor, print) + /api/resumes route handlers
-src/components/renderer ResumeRenderer, templates, renderer.css (shared by preview/PDF/thumbnails)
+src/components/renderer ResumeRenderer, templates, renderer.css (plain CSS, shared by preview/PDF/thumbnails)
 src/components/editor   editor shell, forms, design + add-section panels, preview
 src/components/dashboard
 src/store/              Zustand editor store (undo/redo) + autosave hook
 src/lib/                prisma client, data access, Puppeteer rendering, paper sizes, API client
 src/types/resume.ts     types + zod schemas
+src/styles/_tokens.scss shared Sass tokens (colors, radii, shadows) and mixins for the *.module.scss files
 tests/unit              vitest
 tests/e2e               playwright
 ```
@@ -62,3 +64,14 @@ tests/e2e               playwright
 - The first PDF after a server start takes a few seconds while Chrome launches. Later ones reuse the browser and take about 1–2 s.
 - Thumbnails are cached in `data/thumbnails/` and re-rendered when a resume changes.
 - Rich text is sanitized on save to `p, br, strong/b, em/i, u, ul, ol, li`.
+
+## Styling
+
+Every component or page has its own `<Name>.module.scss` next to it (for example `Dashboard.tsx` and `Dashboard.module.scss`), imported as `styles` and applied with `className={styles.something}`. Use `cx()` from `src/lib/cx.ts` to combine classes conditionally. Colors, radii and shadows come from `src/styles/_tokens.scss`:
+
+```scss
+@use "../../styles/tokens" as *;   // path is relative to the module file
+```
+
+The resume itself (`src/components/renderer/renderer.css`) stays plain, global CSS on purpose: the preview, PDF and thumbnails all depend on its stable class names. `src/app/globals.css` is the only file that still goes through Tailwind (for its base reset); no component uses Tailwind utility classes.
+

@@ -12,6 +12,8 @@ import {
 import { SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { useId } from "react";
+import { cx } from "@/lib/cx";
+import styles from "./Sortable.module.scss";
 
 /** Vertical drag-to-reorder list. Children render their own drag handle via the `handle` props. */
 export function SortableList<T extends { id: string }>({
@@ -55,7 +57,7 @@ function SortableRow({ id, children }: { id: string; children: (handle: HandlePr
     <div
       ref={setNodeRef}
       style={{ transform: CSS.Translate.toString(transform), transition, zIndex: isDragging ? 10 : undefined, position: "relative" }}
-      className={isDragging ? "opacity-80" : undefined}
+      className={cx(isDragging && styles.dragging)}
     >
       {children({ ...attributes, ...listeners, ref: setActivatorNodeRef })}
     </div>
@@ -71,9 +73,9 @@ export function DragHandle({ handle, label }: { handle: HandleProps; label: stri
       {...rest}
       aria-label={label}
       title="Drag to reorder"
-      className="inline-flex h-8 w-6 cursor-grab touch-none items-center justify-center rounded text-neutral-400 hover:bg-neutral-100 hover:text-neutral-700 active:cursor-grabbing"
+      className={styles.handle}
     >
-      <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor" aria-hidden>
+      <svg viewBox="0 0 24 24" className={styles.handleIcon} fill="currentColor" aria-hidden>
         {[6, 12, 18].flatMap((y) => [9, 15].map((x) => <circle key={`${x}-${y}`} cx={x} cy={y} r={1.6} />))}
       </svg>
     </button>

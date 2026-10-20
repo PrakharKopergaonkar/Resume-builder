@@ -6,6 +6,7 @@ import { ResumeRenderer } from "@/components/renderer/ResumeRenderer";
 import { api } from "@/lib/api";
 import { PAGE_MARGIN_MM, PAPER } from "@/lib/paper";
 import type { ResumeDoc } from "@/types/resume";
+import styles from "./PrintView.module.scss";
 
 /**
  * Chrome-less page that Puppeteer prints to PDF and screenshots for thumbnails.
@@ -32,14 +33,14 @@ export function PrintView({ params }: { params: Promise<{ id: string }> }) {
     };
   }, [doc, autoprint]);
 
-  if (error) return <p className="p-8 text-sm text-red-700">Resume not found.</p>;
+  if (error) return <p className={styles.error}>Resume not found.</p>;
   if (!doc) return null;
 
   const paper = PAPER[doc.style.paper];
   return (
-    <div className="print-root flex justify-center bg-neutral-200 py-8 print:block print:bg-white print:py-0" data-render-ready>
+    <div className={styles.root} data-render-ready>
       <style>{`@page { size: ${paper.css}; margin: ${PAGE_MARGIN_MM.y}mm ${PAGE_MARGIN_MM.x}mm; }`}</style>
-      <div className="shadow-lg print:shadow-none">
+      <div className={styles.sheet}>
         <ResumeRenderer resume={doc} />
       </div>
     </div>

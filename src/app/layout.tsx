@@ -8,6 +8,7 @@ import "@fontsource/lato/400.css";
 import "@fontsource/lato/400-italic.css";
 import "@fontsource/lato/700.css";
 import "./globals.css";
+import styles from "./layout.module.scss";
 
 export const metadata: Metadata = {
   title: "Resume Builder",
@@ -16,8 +17,8 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className="h-full antialiased">
-      <body className="min-h-full">{children}</body>
+    <html lang="en" className={styles.html}>
+      <body className={styles.body}>{children}</body>
     </html>
   );
 }

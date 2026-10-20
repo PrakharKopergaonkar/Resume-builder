@@ -1,0 +1,30 @@
+@use "../../styles/tokens" as *;
+
+.dragging {
+  opacity: 0.8;
+}
+
+.handle {
+  display: inline-flex;
+  height: 2rem;
+  width: 1.5rem;
+  cursor: grab;
+  touch-action: none;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.25rem;
+  color: $neutral-400;
+
+  &:hover {
+    background: $neutral-100;
+    color: $neutral-700;
+  }
+  &:active {
+    cursor: grabbing;
+  }
+}
+
+.handleIcon {
+  width: 1rem;
+  height: 1rem;
+}

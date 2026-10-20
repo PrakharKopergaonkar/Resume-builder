@@ -1,0 +1,147 @@
+@use "../../styles/tokens" as *;
+
+// Vertical rhythm between a form's direct children (Tailwind's `space-y-*`).
+.stack2 > :not(:last-child) {
+  margin-bottom: 0.5rem;
+}
+.stack3 > :not(:last-child) {
+  margin-bottom: 0.75rem;
+}
+.stack4 > :not(:last-child) {
+  margin-bottom: 1rem;
+}
+
+.grid2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.grid3 {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.span2 {
+  grid-column: span 2 / span 2;
+}
+
+// ---- contact links
+.caption {
+  margin-bottom: 0.25rem;
+  font-size: 0.75rem;
+  line-height: $leading-xs;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+  color: $neutral-500;
+}
+
+.linkRow {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.5rem;
+}
+
+.linkLabel {
+  width: 33.333333%;
+}
+
+.grow {
+  flex: 1;
+}
+
+.addLink {
+  margin-top: 0.5rem;
+}
+
+// ---- repeatable item cards
+.itemCard {
+  border-radius: $radius-lg;
+  border: 1px solid $neutral-200;
+  background: alpha($neutral-50, 60%);
+  padding: 0.75rem;
+}
+
+.itemHead {
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.itemSummary {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
+  color: $neutral-700;
+  @include text-sm;
+}
+
+.checkboxRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: $neutral-700;
+  @include text-sm;
+}
+
+.checkbox {
+  height: 1rem;
+  width: 1rem;
+  accent-color: $blue-700;
+}
+
+// ---- skills
+.skillRow {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding-block: 0.125rem;
+}
+
+.skillInput {
+  display: block;
+  min-width: 0;
+  flex: 1;
+  border-radius: $radius-md;
+  border: 1px solid $neutral-300;
+  background: $white;
+  padding: 0.375rem 0.625rem;
+  @include text-sm;
+  @include field-focus;
+}
+
+.skillLevel {
+  border-radius: $radius-md;
+  border: 1px solid $neutral-300;
+  background: $white;
+  padding: 0.375rem;
+  @include text-sm;
+}
+
+// ---- month / year pair
+.legend {
+  margin-bottom: 0.25rem;
+  font-weight: 600;
+  color: $neutral-800;
+  @include text-sm;
+}
+
+// ---- certifications
+.requiredNote {
+  color: $neutral-500;
+  @include text-xs;
+}
+
+.requiredStar {
+  color: $red-600;
+}
+
+.warning {
+  color: $red-600;
+  @include text-xs;
+}

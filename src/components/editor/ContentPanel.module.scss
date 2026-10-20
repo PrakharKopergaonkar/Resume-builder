@@ -1,0 +1,86 @@
+@use "../../styles/tokens" as *;
+
+.panel {
+  padding: 1rem;
+
+  > :not(:last-child) {
+    margin-bottom: 0.5rem;
+  }
+}
+
+.rowGap {
+  padding-top: 0.5rem;
+}
+
+.card {
+  border-radius: $radius-xl;
+  border: 1px solid $neutral-200;
+  background: $white;
+  box-shadow: $shadow-sm;
+}
+
+.cardOpen {
+  border-color: $blue-300;
+  box-shadow: 0 0 0 1px $blue-200, $shadow-sm;
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.375rem 0.5rem;
+}
+
+.handleSpacer {
+  width: 1.5rem;
+}
+
+.titleInput {
+  min-width: 0;
+  flex: 1;
+  border-radius: 0.25rem;
+  padding: 0.25rem 0.375rem;
+  font-size: 15px;
+  font-weight: 600;
+  color: $neutral-900;
+  &:hover {
+    background: $neutral-50;
+  }
+  &:focus {
+    background: $white;
+    outline: none;
+    box-shadow: 0 0 0 2px alpha($blue-600, 20%);
+  }
+}
+
+.titleButton {
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 0.25rem 0.375rem;
+  text-align: left;
+  font-size: 15px;
+  font-weight: 600;
+  color: $neutral-900;
+}
+
+.titleHidden {
+  color: $neutral-400;
+  text-decoration: line-through;
+}
+
+.cardBody {
+  border-top: 1px solid $neutral-100;
+  padding: 0.75rem 1rem 1rem;
+}
+
+.empty {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding-inline: 1rem;
+  color: $neutral-500;
+  @include text-sm;
+}

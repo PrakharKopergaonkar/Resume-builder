@@ -5,7 +5,8 @@ import { arrayMove } from "@dnd-kit/sortable";
 import { emptyCertification, emptyCustom, emptyEducation, emptyExperience, emptySkill, newId } from "@/lib/defaults";
 import { useEditor } from "@/store/editor";
 import type { CertificationItem, ResumeHeader, Section } from "@/types/resume";
-import { Button, fieldLabelClass, Icon, IconButton, TextField } from "@/components/ui";
+import { Button, fieldLabelClass, Icon, IconButton, selectClass, TextField } from "@/components/ui";
+import styles from "./forms.module.scss";
 import { RichText } from "./RichText";
 import { DragHandle, SortableList } from "./Sortable";
 
@@ -31,13 +32,13 @@ export function HeaderForm({ header }: { header: ResumeHeader }) {
     }, `header:${field}`);
 
   return (
-    <div className="space-y-3">
-      <div className="grid grid-cols-2 gap-3">
+    <div className={styles.stack3}>
+      <div className={styles.grid2}>
         <TextField label="First name" value={header.firstName} onChange={set("firstName")} autoComplete="off" />
         <TextField label="Last name" value={header.lastName} onChange={set("lastName")} autoComplete="off" />
       </div>
       <TextField label="Job title" value={header.title} onChange={set("title")} placeholder="e.g. Software Engineer" />
-      <div className="grid grid-cols-2 gap-3">
+      <div className={styles.grid2}>
         <TextField label="Email" type="email" value={header.email} onChange={set("email")} />
         <TextField label="Phone" type="tel" value={header.phone} onChange={set("phone")} />
         <TextField label="City" value={header.city} onChange={set("city")} />
@@ -45,19 +46,19 @@ export function HeaderForm({ header }: { header: ResumeHeader }) {
       </div>
 
       <div>
-        <div className="mb-1 text-xs font-semibold uppercase tracking-wide text-neutral-500">Links</div>
-        <div className="space-y-2">
+        <div className={styles.caption}>Links</div>
+        <div className={styles.stack2}>
           {header.links.map((l, i) => (
-            <div key={l.id} className="flex items-end gap-2">
+            <div key={l.id} className={styles.linkRow}>
               <TextField
-                className="w-1/3"
+                className={styles.linkLabel}
                 label="Label"
                 value={l.label}
                 placeholder="LinkedIn"
                 onChange={(v) => edit((d) => void (d.content.header.links[i].label = v), `link:${l.id}:label`)}
               />
               <TextField
-                className="flex-1"
+                className={styles.grow}
                 label="URL"
                 value={l.url}
                 placeholder="linkedin.com/in/you"
@@ -70,7 +71,7 @@ export function HeaderForm({ header }: { header: ResumeHeader }) {
         <Button
           size="sm"
           variant="ghost"
-          className="mt-2 text-blue-700"
+          className={styles.addLink}
           onClick={() => edit((d) => void d.content.header.links.push({ id: newId(), label: "", url: "" }))}
         >
           <Icon name="plus" /> Add link
@@ -100,20 +101,20 @@ function ItemList<I extends { id: string }>({
   render: (item: I, index: number) => React.ReactNode;
 }) {
   return (
-    <div className="space-y-3">
+    <div className={styles.stack3}>
       <SortableList items={items} onMove={onMove}>
         {(item, index, handle) => (
-          <div className="rounded-lg border border-neutral-200 bg-neutral-50/60 p-3">
-            <div className="mb-2 flex items-center gap-1">
+          <div className={styles.itemCard}>
+            <div className={styles.itemHead}>
               <DragHandle handle={handle} label={`Reorder ${summary(item) || noun}`} />
-              <div className="flex-1 truncate text-sm font-semibold text-neutral-700">{summary(item) || `New ${noun}`}</div>
+              <div className={styles.itemSummary}>{summary(item) || `New ${noun}`}</div>
               <IconButton icon="trash" label={`Remove ${noun}`} onClick={() => onRemove(index)} />
             </div>
             {render(item, index)}
           </div>
         )}
       </SortableList>
-      <Button size="sm" variant="ghost" className="text-blue-700" onClick={onAdd}>
+      <Button size="sm" variant="ghost" onClick={onAdd}>
         <Icon name="plus" /> Add {noun}
       </Button>
     </div>
@@ -148,8 +149,8 @@ function ExperienceForm({ section }: { section: SectionOf<"experience"> }) {
       onAdd={() => editSection((s) => void s.items.push(emptyExperience()))}
       onRemove={(i) => editSection((s) => void s.items.splice(i, 1))}
       render={(item, i) => (
-        <div className="space-y-3">
-          <div className="grid grid-cols-2 gap-3">
+        <div className={styles.stack3}>
+          <div className={styles.grid2}>
             <TextField label="Job title" value={item.title} onChange={setField(i, item.id, "title")} />
             <TextField label="Employer" value={item.company} onChange={setField(i, item.id, "company")} />
             <TextField label="City" value={item.city} onChange={setField(i, item.id, "city")} />
@@ -163,10 +164,10 @@ function ExperienceForm({ section }: { section: SectionOf<"experience"> }) {
               onChange={setField(i, item.id, "end")}
             />
           </div>
-          <label className="flex items-center gap-2 text-sm text-neutral-700">
+          <label className={styles.checkboxRow}>
             <input
               type="checkbox"
-              className="h-4 w-4 accent-blue-700"
+              className={styles.checkbox}
               checked={item.current}
               onChange={(e) => editSection((s) => void (s.items[i].current = e.target.checked))}
             />
@@ -197,9 +198,9 @@ function EducationForm({ section }: { section: SectionOf<"education"> }) {
       onAdd={() => editSection((s) => void s.items.push(emptyEducation()))}
       onRemove={(i) => editSection((s) => void s.items.splice(i, 1))}
       render={(item, i) => (
-        <div className="space-y-3">
-          <div className="grid grid-cols-2 gap-3">
-            <TextField label="School" value={item.school} onChange={setField(i, item.id, "school")} className="col-span-2" />
+        <div className={styles.stack3}>
+          <div className={styles.grid2}>
+            <TextField label="School" value={item.school} onChange={setField(i, item.id, "school")} className={styles.span2} />
             <TextField label="Degree" value={item.degree} onChange={setField(i, item.id, "degree")} placeholder="B.S." />
             <TextField label="Field of study" value={item.field} onChange={setField(i, item.id, "field")} />
             <TextField label="City" value={item.city} onChange={setField(i, item.id, "city")} />
@@ -215,14 +216,14 @@ function EducationForm({ section }: { section: SectionOf<"education"> }) {
 function SkillsForm({ section }: { section: SectionOf<"skills"> }) {
   const editSection = useSectionEdit<"skills">(section.id);
   return (
-    <div className="space-y-2" data-skill-list>
+    <div className={styles.stack2} data-skill-list>
       <SortableList items={section.items} onMove={(a, b) => editSection((s) => void (s.items = arrayMove(s.items, a, b)))}>
         {(item, i, handle) => (
-          <div className="flex items-center gap-1.5 py-0.5">
+          <div className={styles.skillRow}>
             <DragHandle handle={handle} label={`Reorder ${item.name || "skill"}`} />
             <input
               aria-label="Skill"
-              className="block min-w-0 flex-1 rounded-md border border-neutral-300 bg-white px-2.5 py-1.5 text-sm focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20"
+              className={styles.skillInput}
               value={item.name}
               placeholder="Skill"
               onChange={(e) => editSection((s) => void (s.items[i].name = e.target.value), `${item.id}:name`)}
@@ -237,7 +238,7 @@ function SkillsForm({ section }: { section: SectionOf<"skills"> }) {
             />
             <select
               aria-label="Skill level"
-              className="rounded-md border border-neutral-300 bg-white px-1.5 py-1.5 text-sm"
+              className={styles.skillLevel}
               value={item.level}
               onChange={(e) => editSection((s) => void (s.items[i].level = Number(e.target.value)))}
             >
@@ -252,7 +253,7 @@ function SkillsForm({ section }: { section: SectionOf<"skills"> }) {
           </div>
         )}
       </SortableList>
-      <Button size="sm" variant="ghost" className="text-blue-700" onClick={() => editSection((s) => void s.items.push(emptySkill()))}>
+      <Button size="sm" variant="ghost" onClick={() => editSection((s) => void s.items.push(emptySkill()))}>
         <Icon name="plus" /> Add {section.title.toLowerCase().endsWith("s") ? section.title.toLowerCase().slice(0, -1) : "item"}
       </Button>
     </div>
@@ -272,9 +273,9 @@ function CustomForm({ section }: { section: SectionOf<"custom"> }) {
       onAdd={() => editSection((s) => void s.items.push(emptyCustom()))}
       onRemove={(i) => editSection((s) => void s.items.splice(i, 1))}
       render={(item, i) => (
-        <div className="space-y-3">
-          <div className="grid grid-cols-3 gap-3">
-            <TextField label="Title" value={item.heading} onChange={setField(i, item.id, "heading")} className="col-span-2" />
+        <div className={styles.stack3}>
+          <div className={styles.grid3}>
+            <TextField label="Title" value={item.heading} onChange={setField(i, item.id, "heading")} className={styles.span2} />
             <TextField label="Date" value={item.date} onChange={setField(i, item.id, "date")} placeholder="2024" />
           </div>
           <RichText label="Description" value={item.html} onChange={setField(i, item.id, "html")} />
@@ -291,9 +292,6 @@ const YEARS = (() => {
   return Array.from({ length: now + 10 - 1970 + 1 }, (_, k) => String(now + 10 - k));
 })();
 
-const selectClass =
-  "block w-full rounded-md border border-neutral-300 bg-white px-2.5 py-1.5 text-sm text-neutral-900 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20";
-
 /** LinkedIn-style "Month" + "Year" dropdown pair. */
 function MonthYearField({
   label,
@@ -309,8 +307,8 @@ function MonthYearField({
   const id = useId();
   return (
     <fieldset>
-      <legend className="mb-1 text-sm font-semibold text-neutral-800">{label}</legend>
-      <div className="grid grid-cols-2 gap-3">
+      <legend className={styles.legend}>{label}</legend>
+      <div className={styles.grid2}>
         <div>
           <label htmlFor={`${id}-m`} className={fieldLabelClass}>
             Month
@@ -380,9 +378,9 @@ function CertificationsForm({ section }: { section: SectionOf<"certifications"> 
       onAdd={() => editSection((s) => void s.items.push(emptyCertification()))}
       onRemove={(i) => editSection((s) => void s.items.splice(i, 1))}
       render={(item, i) => (
-        <div className="space-y-4">
-          <p className="text-xs text-neutral-500">
-            <span className="text-red-600">*</span> Indicates required
+        <div className={styles.stack4}>
+          <p className={styles.requiredNote}>
+            <span className={styles.requiredStar}>*</span> Indicates required
           </p>
           <TextField
             label="Name"
@@ -405,7 +403,7 @@ function CertificationsForm({ section }: { section: SectionOf<"certifications"> 
           <MonthYearField label="Issue date" month={item.issueMonth} year={item.issueYear} onChange={setDate(i, "issue")} />
           <MonthYearField label="Expiration date" month={item.expiryMonth} year={item.expiryYear} onChange={setDate(i, "expiry")} />
           {expiresBeforeIssued(item) && (
-            <p role="alert" className="text-xs text-red-600">
+            <p role="alert" className={styles.warning}>
               Expiration date can’t be earlier than the issue date.
             </p>
           )}

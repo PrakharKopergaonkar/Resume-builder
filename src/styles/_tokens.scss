@@ -1,0 +1,119 @@
+@use "sass:string";
+
+// Design tokens shared by every *.module.scss. Values mirror the Tailwind v4 theme the app was
+// originally styled with, so converting a component never changes how it looks.
+// Colors are unquoted strings so Sass passes the oklch() values straight through to the browser.
+
+// --- neutral ---------------------------------------------------------------
+$neutral-50: string.unquote("oklch(98.5% 0 none)");
+$neutral-100: string.unquote("oklch(97% 0 none)");
+$neutral-200: string.unquote("oklch(92.2% 0 none)");
+$neutral-300: string.unquote("oklch(87% 0 none)");
+$neutral-400: string.unquote("oklch(70.8% 0 none)");
+$neutral-500: string.unquote("oklch(55.6% 0 none)");
+$neutral-600: string.unquote("oklch(43.9% 0 none)");
+$neutral-700: string.unquote("oklch(37.1% 0 none)");
+$neutral-800: string.unquote("oklch(26.9% 0 none)");
+$neutral-900: string.unquote("oklch(20.5% 0 none)");
+
+// --- blue ------------------------------------------------------------------
+$blue-50: string.unquote("oklch(97% 0.014 254.604)");
+$blue-100: string.unquote("oklch(93.2% 0.032 255.585)");
+$blue-200: string.unquote("oklch(88.2% 0.059 254.128)");
+$blue-300: string.unquote("oklch(80.9% 0.105 251.813)");
+$blue-400: string.unquote("oklch(70.7% 0.165 254.624)");
+$blue-500: string.unquote("oklch(62.3% 0.214 259.815)");
+$blue-600: string.unquote("oklch(54.6% 0.245 262.881)");
+$blue-700: string.unquote("oklch(48.8% 0.243 264.376)");
+$blue-800: string.unquote("oklch(42.4% 0.199 265.638)");
+$blue-900: string.unquote("oklch(37.9% 0.146 265.522)");
+
+// --- red / rose ------------------------------------------------------------
+$red-50: string.unquote("oklch(97.1% 0.013 17.38)");
+$red-500: string.unquote("oklch(63.7% 0.237 25.331)");
+$red-600: string.unquote("oklch(57.7% 0.245 27.325)");
+$red-700: string.unquote("oklch(50.5% 0.213 27.518)");
+$rose-400: string.unquote("oklch(71.2% 0.194 13.428)");
+$rose-500: string.unquote("oklch(64.5% 0.246 16.439)");
+
+$white: #fff;
+$black: #000;
+
+// --- geometry / effects ----------------------------------------------------
+$radius-md: 0.375rem;
+$radius-lg: 0.5rem;
+$radius-xl: 0.75rem;
+$radius-full: 9999px;
+
+$shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+$shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+$shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+$shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+
+$transition-duration: 150ms;
+$transition-easing: cubic-bezier(0.4, 0, 0.2, 1);
+
+// Line-heights live in custom properties (see globals.css) so the browser evaluates the ratios at
+// full precision. Inlined, a minifier would round them (1.33333) and text would shift by a sub-pixel.
+$leading-xs: var(--leading-xs);
+$leading-sm: var(--leading-sm);
+$leading-base: var(--leading-base);
+$leading-lg: var(--leading-lg);
+$leading-2xl: var(--leading-2xl);
+
+// Tailwind's `text-*` sizes always set a line-height together with the font-size.
+@mixin text-xs {
+  font-size: 0.75rem;
+  line-height: $leading-xs;
+}
+@mixin text-sm {
+  font-size: 0.875rem;
+  line-height: $leading-sm;
+}
+@mixin text-base {
+  font-size: 1rem;
+  line-height: $leading-base;
+}
+@mixin text-lg {
+  font-size: 1.125rem;
+  line-height: $leading-lg;
+}
+@mixin text-2xl {
+  font-size: 1.5rem;
+  line-height: $leading-2xl;
+}
+
+// `color` at `percent` opacity (what Tailwind's `bg-blue-600/20` compiles to).
+@function alpha($color, $percent) {
+  @return string.unquote("color-mix(in oklab, #{$color} #{$percent}, transparent)");
+}
+
+// `focus:ring-2 focus:ring-<color>/20` + `focus:border-<color>` text-input focus treatment.
+@mixin field-focus($color: $blue-600) {
+  &:focus {
+    outline: none;
+    border-color: $color;
+    box-shadow: 0 0 0 2px alpha($color, 20%);
+  }
+}
+
+// `focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600`
+@mixin focus-outline {
+  &:focus-visible {
+    outline: 2px solid $blue-600;
+    outline-offset: 2px;
+  }
+}
+
+// Visually hidden but still read by screen readers (Tailwind's `sr-only`).
+@mixin sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border-width: 0;
+}

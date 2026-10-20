@@ -1,0 +1,10 @@
+@use "../../../styles/tokens" as *;
+
+.loading {
+  display: flex;
+  height: 100vh;
+  align-items: center;
+  justify-content: center;
+  color: $neutral-500;
+  @include text-sm;
+}

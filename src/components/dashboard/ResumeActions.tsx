@@ -5,6 +5,8 @@ import { useEffect, useRef, useState } from "react";
 import { api } from "@/lib/api";
 import type { ResumeSummary } from "@/types/resume";
 import { Button, Icon, Input } from "@/components/ui";
+import { cx } from "@/lib/cx";
+import styles from "./ResumeActions.module.scss";
 
 /** Edit / Download / More (Print, Duplicate, Rename, Delete) for one resume, like Zety's row actions. */
 export function ResumeActions({ resume, onChanged, compact }: { resume: ResumeSummary; onChanged: () => void; compact?: boolean }) {
@@ -37,32 +39,30 @@ export function ResumeActions({ resume, onChanged, compact }: { resume: ResumeSu
     }
   };
 
-  const item = "flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-neutral-100";
-
   return (
-    <div className={`flex flex-wrap items-center gap-1 ${compact ? "" : "justify-end"}`}>
-      <Link href={`/resume/${resume.id}`} className="inline-flex h-8 items-center gap-1.5 rounded-md px-2.5 text-sm font-medium text-blue-700 hover:bg-blue-50">
+    <div className={cx(styles.actions, !compact && styles.alignEnd)}>
+      <Link href={`/resume/${resume.id}`} className={styles.linkAction}>
         <Icon name="edit" /> Edit
       </Link>
-      <a href={api.pdfUrl(resume.id)} className="inline-flex h-8 items-center gap-1.5 rounded-md px-2.5 text-sm font-medium text-blue-700 hover:bg-blue-50">
+      <a href={api.pdfUrl(resume.id)} className={styles.linkAction}>
         <Icon name="download" /> Download
       </a>
-      <div className="relative" ref={menuRef}>
+      <div className={styles.moreWrap} ref={menuRef}>
         <Button size="sm" variant="ghost" aria-haspopup="menu" aria-expanded={menuOpen} onClick={() => setMenuOpen((o) => !o)} disabled={busy}>
           <Icon name="more" /> More
         </Button>
         {menuOpen && (
-          <div role="menu" className="absolute right-0 z-20 mt-1 w-40 overflow-hidden rounded-lg border border-neutral-200 bg-white py-1 shadow-lg">
-            <button role="menuitem" className={item} onClick={() => (setMenuOpen(false), window.open(api.printUrl(resume.id), "_blank"))}>
+          <div role="menu" className={styles.menu}>
+            <button role="menuitem" className={styles.menuItem} onClick={() => (setMenuOpen(false), window.open(api.printUrl(resume.id), "_blank"))}>
               <Icon name="print" /> Print
             </button>
-            <button role="menuitem" className={item} onClick={() => run(() => api.duplicate(resume.id))}>
+            <button role="menuitem" className={styles.menuItem} onClick={() => run(() => api.duplicate(resume.id))}>
               <Icon name="copy" /> Duplicate
             </button>
-            <button role="menuitem" className={item} onClick={() => (setMenuOpen(false), setDialog("rename"))}>
+            <button role="menuitem" className={styles.menuItem} onClick={() => (setMenuOpen(false), setDialog("rename"))}>
               <Icon name="edit" /> Rename
             </button>
-            <button role="menuitem" className={`${item} text-red-600`} onClick={() => (setMenuOpen(false), setDialog("delete"))}>
+            <button role="menuitem" className={cx(styles.menuItem, styles.menuItemDanger)} onClick={() => (setMenuOpen(false), setDialog("delete"))}>
               <Icon name="trash" /> Delete
             </button>
           </div>
@@ -81,10 +81,10 @@ export function ResumeActions({ resume, onChanged, compact }: { resume: ResumeSu
       )}
       {dialog === "delete" && (
         <Modal title="Delete resume?" onClose={() => setDialog(null)}>
-          <p className="text-sm text-neutral-600">
+          <p className={styles.dialogText}>
             “{resume.name}” will be permanently deleted. This can’t be undone.
           </p>
-          <div className="mt-5 flex justify-end gap-2">
+          <div className={styles.dialogActions}>
             <Button onClick={() => setDialog(null)}>Cancel</Button>
             <Button
               variant="danger"
@@ -113,7 +113,7 @@ function RenameDialog({ name, onSave, onCancel }: { name: string; onSave: (n: st
         }}
       >
         <Input aria-label="Resume name" autoFocus value={value} onChange={(e) => setValue(e.target.value)} onFocus={(e) => e.target.select()} />
-        <div className="mt-5 flex justify-end gap-2">
+        <div className={styles.dialogActions}>
           <Button onClick={onCancel}>Cancel</Button>
           <Button type="submit" variant="primary" disabled={!value.trim()}>
             Save
@@ -131,9 +131,9 @@ function Modal({ title, onClose, children }: { title: string; onClose: () => voi
     return () => document.removeEventListener("keydown", onKey);
   }, [onClose]);
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4" onMouseDown={onClose}>
-      <div role="dialog" aria-modal="true" aria-label={title} className="w-full max-w-sm rounded-xl bg-white p-5 text-left shadow-2xl" onMouseDown={(e) => e.stopPropagation()}>
-        <h2 className="mb-3 text-lg font-semibold">{title}</h2>
+    <div className={styles.overlay} onMouseDown={onClose}>
+      <div role="dialog" aria-modal="true" aria-label={title} className={styles.dialog} onMouseDown={(e) => e.stopPropagation()}>
+        <h2 className={styles.dialogTitle}>{title}</h2>
         {children}
       </div>
     </div>

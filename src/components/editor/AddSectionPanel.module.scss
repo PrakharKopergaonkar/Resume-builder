@@ -1,0 +1,63 @@
+@use "../../styles/tokens" as *;
+
+.panel {
+  padding: 1rem;
+
+  > :not(:last-child) {
+    margin-bottom: 1.5rem;
+  }
+}
+
+.heading {
+  margin-bottom: 0.5rem;
+  font-size: 0.75rem;
+  line-height: $leading-xs;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+  color: $neutral-500;
+}
+
+.presets {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+.preset {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: $radius-lg;
+  border: 1px solid $neutral-200;
+  background: $white;
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  font-weight: 500;
+  color: $neutral-800;
+  @include text-sm;
+
+  &:hover {
+    border-color: $blue-300;
+    background: $blue-50;
+  }
+
+  // Sections already on the resume are greyed out.
+  &:disabled {
+    cursor: default;
+    background: $neutral-50;
+    color: $neutral-400;
+    &:hover {
+      border-color: $neutral-200;
+    }
+  }
+}
+
+.presetIcon {
+  flex-shrink: 0;
+}
+
+.customRow {
+  display: flex;
+  gap: 0.5rem;
+}

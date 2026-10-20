@@ -4,6 +4,7 @@ import { useState } from "react";
 import { makeSection, SECTION_PRESETS } from "@/lib/defaults";
 import { useEditor, type Snapshot } from "@/store/editor";
 import { Button, Icon, Input } from "@/components/ui";
+import styles from "./AddSectionPanel.module.scss";
 
 /** Preset sections (greyed out once added) plus a custom section with any title. */
 export function AddSectionPanel({ doc, onAdded }: { doc: Snapshot; onAdded: () => void }) {
@@ -20,10 +21,10 @@ export function AddSectionPanel({ doc, onAdded }: { doc: Snapshot; onAdded: () =
   };
 
   return (
-    <div className="space-y-6 p-4">
+    <div className={styles.panel}>
       <div>
-        <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-neutral-500">Suggested sections</h3>
-        <div className="grid grid-cols-2 gap-2">
+        <h3 className={styles.heading}>Suggested sections</h3>
+        <div className={styles.presets}>
           {SECTION_PRESETS.map((p) => {
             const added = existing.has(p.title.toLowerCase());
             return (
@@ -32,9 +33,9 @@ export function AddSectionPanel({ doc, onAdded }: { doc: Snapshot; onAdded: () =
                 type="button"
                 disabled={added}
                 onClick={() => add(p.type, p.title, p.column)}
-                className="flex items-center gap-2 rounded-lg border border-neutral-200 bg-white px-3 py-2 text-left text-sm font-medium text-neutral-800 hover:border-blue-300 hover:bg-blue-50 disabled:cursor-default disabled:bg-neutral-50 disabled:text-neutral-400 disabled:hover:border-neutral-200"
+                className={styles.preset}
               >
-                <Icon name={added ? "check" : "plus"} className="h-4 w-4 shrink-0" />
+                <Icon name={added ? "check" : "plus"} className={styles.presetIcon} />
                 {p.title}
               </button>
             );
@@ -51,8 +52,8 @@ export function AddSectionPanel({ doc, onAdded }: { doc: Snapshot; onAdded: () =
           }
         }}
       >
-        <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-neutral-500">Custom section</h3>
-        <div className="flex gap-2">
+        <h3 className={styles.heading}>Custom section</h3>
+        <div className={styles.customRow}>
           <Input aria-label="Custom section title" placeholder="e.g. Volunteering" value={custom} onChange={(e) => setCustom(e.target.value)} />
           <Button type="submit" variant="primary" disabled={!custom.trim()}>
             Add

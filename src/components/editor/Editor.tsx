@@ -1,15 +1,19 @@
 "use client";
 
 import Link from "next/link";
-import { use, useEffect, useState } from "react";
+import { use, useEffect, useRef, useState } from "react";
 import { api } from "@/lib/api";
-import { useEditor } from "@/store/editor";
+import { clampLeftWidth, DEFAULT_LEFT_WIDTH, readStoredLeftWidth, storeLeftWidth } from "@/lib/panel-width";
+import { useEditor, type Snapshot } from "@/store/editor";
 import { useAutosave } from "@/store/useAutosave";
 import { Icon, type IconName } from "@/components/ui";
+import { cx } from "@/lib/cx";
 import { AddSectionPanel } from "./AddSectionPanel";
 import { ContentPanel } from "./ContentPanel";
 import { DesignPanel } from "./DesignPanel";
+import styles from "./Editor.module.scss";
 import { Preview } from "./Preview";
+import { ResizeHandle } from "./ResizeHandle";
 import { Toolbar } from "./Toolbar";
 
 type Tab = "content" | "design" | "add";
@@ -25,7 +29,6 @@ const isTyping = (t: EventTarget | null) =>
 export function Editor({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const doc = useEditor((s) => (s.id === id ? s.doc : null));
-  const [tab, setTab] = useState<Tab>("content");
   const [error, setError] = useState(false);
 
   useAutosave();
@@ -49,50 +52,82 @@ export function Editor({ params }: { params: Promise<{ id: string }> }) {
 
   if (error)
     return (
-      <div className="flex h-screen flex-col items-center justify-center gap-3 text-neutral-600">
+      <div className={cx(styles.fullScreen, styles.notFound)}>
         <p>This resume doesn’t exist or was deleted.</p>
-        <Link href="/" className="text-blue-700 underline">
+        <Link href="/" className={styles.notFoundLink}>
           Back to My Resumes
         </Link>
       </div>
     );
-  if (!doc) return <div className="flex h-screen items-center justify-center text-sm text-neutral-500">Loading editor…</div>;
+  if (!doc) return <div className={cx(styles.fullScreen, styles.loading)}>Loading editor…</div>;
 
   return (
-    <div className="flex h-screen flex-col overflow-hidden">
+    <div className={styles.editor}>
       <Toolbar />
-      <div className="flex min-h-0 flex-1">
-        <nav className="flex w-20 shrink-0 flex-col items-center gap-1 border-r border-neutral-200 bg-white py-3" aria-label="Editor tools">
-          {TABS.map((t) => (
-            <button
-              key={t.id}
-              type="button"
-              onClick={() => setTab(t.id)}
-              aria-current={tab === t.id ? "page" : undefined}
-              className={`flex w-16 flex-col items-center gap-1 rounded-lg py-2 text-[11px] font-medium ${tab === t.id ? "bg-blue-50 text-blue-800" : "text-neutral-600 hover:bg-neutral-100"}`}
-            >
-              <Icon name={t.icon} className="h-5 w-5" />
-              {t.label}
-            </button>
-          ))}
-        </nav>
-        <aside className="w-[440px] shrink-0 overflow-y-auto border-r border-neutral-200 bg-neutral-50">
-          <h2 className="px-4 pt-4 text-lg font-semibold text-neutral-900">{TABS.find((t) => t.id === tab)!.label}</h2>
-          {tab === "content" && <ContentPanel content={doc.content} />}
-          {tab === "design" && <DesignPanel doc={doc} />}
-          {tab === "add" && <AddSectionPanel doc={doc} onAdded={() => setTab("content")} />}
-        </aside>
-        <main className="min-w-0 flex-1">
-          <Preview
-            doc={doc}
-            onSectionClick={(sectionId) => {
-              // Clicking a section in the preview jumps to its form.
-              useEditor.getState().setActiveSection(sectionId);
-              setTab("content");
-            }}
-          />
-        </main>
-      </div>
+      <Workspace doc={doc} />
+    </div>
+  );
+}
+
+/**
+ * Icon rail + form panel + preview. Rendered only once the resume has loaded (client side), so the
+ * saved panel width can be read from localStorage without a hydration mismatch.
+ */
+function Workspace({ doc }: { doc: Snapshot }) {
+  const [tab, setTab] = useState<Tab>("content");
+  const rowRef = useRef<HTMLDivElement>(null);
+  const asideRef = useRef<HTMLElement>(null);
+  const [leftWidth, setLeftWidth] = useState(() =>
+    clampLeftWidth(readStoredLeftWidth() ?? DEFAULT_LEFT_WIDTH, window.innerWidth - 80),
+  );
+
+  /** Space shared by the form panel and the preview: from the form panel's left edge to the row's right edge. */
+  const getArea = () => {
+    const left = asideRef.current?.getBoundingClientRect().left ?? 0;
+    const right = rowRef.current?.getBoundingClientRect().right ?? window.innerWidth;
+    return { left, width: right - left };
+  };
+
+  // Shrinking the window must never squeeze the preview below its minimum.
+  useEffect(() => {
+    const onResize = () => setLeftWidth((w) => clampLeftWidth(w, getArea().width));
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+
+  return (
+    <div ref={rowRef} className={styles.workspace}>
+      <nav className={styles.rail} aria-label="Editor tools">
+        {TABS.map((t) => (
+          <button
+            key={t.id}
+            type="button"
+            onClick={() => setTab(t.id)}
+            aria-current={tab === t.id ? "page" : undefined}
+            className={cx(styles.tab, tab === t.id && styles.tabActive)}
+          >
+            <Icon name={t.icon} size="md" />
+            {t.label}
+          </button>
+        ))}
+      </nav>
+      <aside ref={asideRef} style={{ width: leftWidth }} className={styles.panel} data-testid="form-panel">
+        <h2 className={styles.panelTitle}>{TABS.find((t) => t.id === tab)!.label}</h2>
+        {tab === "content" && <ContentPanel content={doc.content} />}
+        {tab === "design" && <DesignPanel doc={doc} />}
+        {tab === "add" && <AddSectionPanel doc={doc} onAdded={() => setTab("content")} />}
+      </aside>
+      <ResizeHandle value={leftWidth} onChange={setLeftWidth} onCommit={storeLeftWidth} getArea={getArea} />
+      <main className={styles.preview}>
+        <Preview
+          doc={doc}
+          onSectionClick={(sectionId) => {
+            // Clicking a section in the preview jumps to its form.
+            useEditor.getState().setActiveSection(sectionId);
+            setTab("content");
+          }}
+        />
+      </main>
     </div>
   );
 }

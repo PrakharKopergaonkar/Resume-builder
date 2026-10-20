@@ -1,0 +1,74 @@
+@use "../../styles/tokens" as *;
+
+.toolbar {
+  display: flex;
+  height: 3.5rem;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 0.75rem;
+  border-bottom: 1px solid $neutral-200;
+  background: $white;
+  padding-inline: 0.75rem;
+}
+
+.back {
+  display: inline-flex;
+  height: 2.25rem;
+  align-items: center;
+  gap: 0.375rem;
+  border-radius: $radius-md;
+  padding-inline: 0.5rem;
+  font-weight: 500;
+  color: $neutral-700;
+  @include text-sm;
+  &:hover {
+    background: $neutral-100;
+  }
+}
+
+.divider {
+  height: 1.5rem;
+  width: 1px;
+  background: $neutral-200;
+}
+
+.dividerInset {
+  margin-inline: 0.25rem;
+}
+
+.nameInput {
+  min-width: 0;
+  max-width: 20rem;
+  flex: 1;
+  border-radius: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  font-weight: 600;
+  color: $neutral-900;
+  &:hover {
+    background: $neutral-50;
+  }
+  &:focus {
+    background: $white;
+    outline: none;
+    box-shadow: 0 0 0 2px alpha($blue-600, 20%);
+  }
+}
+
+.status {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: $neutral-500;
+  @include text-xs;
+}
+
+.statusError {
+  color: $red-600;
+}
+
+.rail {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-left: auto;
+}

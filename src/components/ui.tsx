@@ -1,43 +1,36 @@
 "use client";
 
 import { forwardRef, useId } from "react";
+import { cx } from "@/lib/cx";
+import styles from "./ui.module.scss";
 
 type Variant = "primary" | "secondary" | "ghost" | "danger";
-
-const VARIANTS: Record<Variant, string> = {
-  primary: "bg-blue-700 text-white hover:bg-blue-800 disabled:bg-blue-300",
-  secondary: "border border-neutral-300 bg-white text-neutral-800 hover:bg-neutral-50 disabled:text-neutral-400",
-  ghost: "text-neutral-700 hover:bg-neutral-100 disabled:text-neutral-300",
-  danger: "bg-red-600 text-white hover:bg-red-700",
-};
 
 export function Button({
   variant = "secondary",
   size = "md",
-  className = "",
+  className,
   ...props
 }: React.ButtonHTMLAttributes<HTMLButtonElement> & { variant?: Variant; size?: "sm" | "md" }) {
-  const sizing = size === "sm" ? "h-8 px-2.5 text-sm" : "h-9 px-3.5 text-sm";
   return (
     <button
       type="button"
-      className={`inline-flex items-center justify-center gap-1.5 rounded-md font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:cursor-not-allowed ${sizing} ${VARIANTS[variant]} ${className}`}
+      className={cx(styles.button, size === "sm" ? styles.sizeSm : styles.sizeMd, styles[variant], className)}
       {...props}
     />
   );
 }
 
-export const inputClass =
-  "block w-full rounded-md border border-neutral-300 bg-white px-2.5 py-1.5 text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20";
+export const inputClass = styles.input;
+export const selectClass = styles.select;
+export const fieldLabelClass = styles.fieldLabel;
 
 export const Input = forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement>>(function Input(
-  { className = "", ...props },
+  { className, ...props },
   ref,
 ) {
-  return <input ref={ref} className={`${inputClass} ${className}`} {...props} />;
+  return <input ref={ref} className={cx(styles.input, className)} {...props} />;
 });
-
-export const fieldLabelClass = "mb-1 block text-xs font-semibold uppercase tracking-wide text-neutral-500";
 
 /** Labelled text input bound to a string value, with optional required marker, error and length counter. */
 export function TextField({
@@ -46,7 +39,7 @@ export function TextField({
   onChange,
   required,
   error,
-  className = "",
+  className,
   ...props
 }: Omit<React.InputHTMLAttributes<HTMLInputElement>, "onChange" | "value"> & {
   label: string;
@@ -59,10 +52,10 @@ export function TextField({
   const { maxLength } = props;
   return (
     <div className={className}>
-      <label htmlFor={id} className={fieldLabelClass}>
+      <label htmlFor={id} className={styles.fieldLabel}>
         {label}
         {required && (
-          <span className="ml-0.5 text-red-600" aria-hidden>
+          <span className={styles.required} aria-hidden>
             *
           </span>
         )}
@@ -74,16 +67,15 @@ export function TextField({
         aria-required={required || undefined}
         aria-invalid={error ? true : undefined}
         aria-describedby={error ? errorId : undefined}
-        className={error ? "border-red-500 focus:border-red-600 focus:ring-red-600/20" : ""}
         {...props}
       />
       {(error || maxLength != null) && (
-        <div className="mt-1 flex justify-between gap-2 text-xs">
-          <span id={errorId} className="text-red-600">
+        <div className={styles.fieldFooter}>
+          <span id={errorId} className={styles.fieldError}>
             {error}
           </span>
           {maxLength != null && (
-            <span className="tabular-nums text-neutral-500">
+            <span className={styles.counter}>
               {value.length}/{maxLength}
             </span>
           )}
@@ -102,9 +94,9 @@ export function Toggle({ checked, onChange, label }: { checked: boolean; onChang
       aria-label={label}
       title={label}
       onClick={() => onChange(!checked)}
-      className={`relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors ${checked ? "bg-blue-700" : "bg-neutral-300"}`}
+      className={styles.toggle}
     >
-      <span className={`inline-block h-4 w-4 rounded-full bg-white shadow transition-transform ${checked ? "translate-x-4.5" : "translate-x-0.5"}`} />
+      <span className={styles.knob} />
     </button>
   );
 }
@@ -139,9 +131,21 @@ const PATHS = {
 
 export type IconName = keyof typeof PATHS;
 
-export function Icon({ name, className = "h-4 w-4" }: { name: IconName; className?: string }) {
+const ICON_SIZES = { xs: styles.iconXs, sm: styles.icon, md: styles.iconMd, xl: styles.iconXl } as const;
+
+/** `size`: xs = 14px, sm = 16px (default), md = 20px, xl = 40px. */
+export function Icon({ name, size = "sm", className }: { name: IconName; size?: keyof typeof ICON_SIZES; className?: string }) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden>
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={cx(ICON_SIZES[size], className)}
+      aria-hidden
+    >
       <path d={PATHS[name]} />
     </svg>
   );
@@ -150,15 +154,16 @@ export function Icon({ name, className = "h-4 w-4" }: { name: IconName; classNam
 export function IconButton({
   icon,
   label,
-  className = "",
+  active,
+  className,
   ...props
-}: React.ButtonHTMLAttributes<HTMLButtonElement> & { icon: IconName; label: string }) {
+}: React.ButtonHTMLAttributes<HTMLButtonElement> & { icon: IconName; label: string; active?: boolean }) {
   return (
     <button
       type="button"
       aria-label={label}
       title={label}
-      className={`inline-flex h-8 w-8 items-center justify-center rounded-md text-neutral-600 transition-colors hover:bg-neutral-100 hover:text-neutral-900 disabled:cursor-not-allowed disabled:text-neutral-300 disabled:hover:bg-transparent ${className}`}
+      className={cx(styles.iconButton, active && styles.iconButtonActive, className)}
       {...props}
     >
       <Icon name={icon} />
