@@ -1,16 +1,16 @@
-import { getCurrentUser, getSessionToken, notFound, unauthorized } from "@/lib/auth/guard";
-import { getResume } from "@/lib/resumes";
+import { handle, notFound } from "@/lib/api/handle";
+import { withUser, type UserContext } from "@/lib/api/middleware";
 import { attachmentHeader } from "@/lib/download";
 import { renderPdf } from "@/lib/render";
+import { getResume } from "@/lib/resumes";
 
-export async function GET(req: Request, ctx: RouteContext<"/api/resumes/[id]/pdf">) {
-  const user = await getCurrentUser();
-  if (!user) return unauthorized();
-  const doc = await getResume(user.id, (await ctx.params).id);
+/** Renders the resume to PDF with headless Chrome and sends it as a download. */
+async function downloadPdfHandler(req: Request, { user, sessionToken, params }: UserContext) {
+  const doc = await getResume(user.id, params.id);
   if (!doc) return notFound();
 
   // The print page loads the resume through the API, so the renderer reuses this user's session.
-  const pdf = await renderPdf(new URL(req.url).origin, doc, (await getSessionToken())!);
+  const pdf = await renderPdf(new URL(req.url).origin, doc, sessionToken);
   return new Response(new Uint8Array(pdf), {
     headers: {
       "Content-Type": "application/pdf",
@@ -19,3 +19,5 @@ export async function GET(req: Request, ctx: RouteContext<"/api/resumes/[id]/pdf
     },
   });
 }
+
+export const GET = handle(withUser, downloadPdfHandler);

@@ -1,9 +1,11 @@
-import { getCurrentUser, notFound, unauthorized } from "@/lib/auth/guard";
+import { handle, notFound } from "@/lib/api/handle";
+import { withUser, type UserContext } from "@/lib/api/middleware";
 import { duplicateResume } from "@/lib/resumes";
 
-export async function POST(_req: Request, ctx: RouteContext<"/api/resumes/[id]/duplicate">) {
-  const user = await getCurrentUser();
-  if (!user) return unauthorized();
-  const doc = await duplicateResume(user.id, (await ctx.params).id);
+/** Copies a resume as "<name> (copy)". */
+async function duplicateResumeHandler(_req: Request, { user, params }: UserContext) {
+  const doc = await duplicateResume(user.id, params.id);
   return doc ? Response.json(doc, { status: 201 }) : notFound();
 }
+
+export const POST = handle(withUser, duplicateResumeHandler);

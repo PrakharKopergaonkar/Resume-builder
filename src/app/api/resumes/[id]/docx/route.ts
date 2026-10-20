@@ -1,12 +1,12 @@
-import { getCurrentUser, notFound, unauthorized } from "@/lib/auth/guard";
+import { handle, notFound } from "@/lib/api/handle";
+import { withUser, type UserContext } from "@/lib/api/middleware";
 import { buildResumeDocx } from "@/lib/docx/build";
 import { attachmentHeader } from "@/lib/download";
 import { getResume } from "@/lib/resumes";
 
-export async function GET(_req: Request, ctx: RouteContext<"/api/resumes/[id]/docx">) {
-  const user = await getCurrentUser();
-  if (!user) return unauthorized();
-  const doc = await getResume(user.id, (await ctx.params).id);
+/** Builds a Word (.docx) version of the resume and sends it as a download. */
+async function downloadDocxHandler(_req: Request, { user, params }: UserContext) {
+  const doc = await getResume(user.id, params.id);
   if (!doc) return notFound();
 
   const file = await buildResumeDocx(doc);
@@ -18,3 +18,5 @@ export async function GET(_req: Request, ctx: RouteContext<"/api/resumes/[id]/do
     },
   });
 }
+
+export const GET = handle(withUser, downloadDocxHandler);

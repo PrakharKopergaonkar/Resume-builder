@@ -1,15 +1,17 @@
-import { getCurrentUser, getSessionToken, notFound, unauthorized } from "@/lib/auth/guard";
-import { getResume } from "@/lib/resumes";
+import { handle, notFound } from "@/lib/api/handle";
+import { withUser, type UserContext } from "@/lib/api/middleware";
 import { getThumbnail } from "@/lib/render";
+import { getResume } from "@/lib/resumes";
 
-export async function GET(req: Request, ctx: RouteContext<"/api/resumes/[id]/thumbnail">) {
-  const user = await getCurrentUser();
-  if (!user) return unauthorized();
-  const doc = await getResume(user.id, (await ctx.params).id);
+/** Returns a PNG preview of the resume's first page (cached until the resume changes). */
+async function thumbnailHandler(req: Request, { user, sessionToken, params }: UserContext) {
+  const doc = await getResume(user.id, params.id);
   if (!doc) return notFound();
 
-  const png = await getThumbnail(new URL(req.url).origin, doc, (await getSessionToken())!);
+  const png = await getThumbnail(new URL(req.url).origin, doc, sessionToken);
   return new Response(new Uint8Array(png), {
     headers: { "Content-Type": "image/png", "Cache-Control": "private, max-age=0, must-revalidate" },
   });
 }
+
+export const GET = handle(withUser, thumbnailHandler);

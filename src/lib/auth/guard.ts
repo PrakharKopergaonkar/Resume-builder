@@ -13,11 +13,6 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
   return prisma.user.findUnique({ where: { id: userId }, select: { id: true, name: true, email: true } });
 }
 
-/** The raw session token of this request; the PDF/thumbnail renderer forwards it to the print page. */
-export async function getSessionToken(): Promise<string | undefined> {
-  return (await cookies()).get(SESSION_COOKIE)?.value;
-}
-
 export async function startSession(userId: string) {
   (await cookies()).set(SESSION_COOKIE, await signSession(userId), sessionCookieOptions);
 }
@@ -25,6 +20,3 @@ export async function startSession(userId: string) {
 export async function endSession() {
   (await cookies()).set(SESSION_COOKIE, "", { ...sessionCookieOptions, maxAge: 0 });
 }
-
-export const unauthorized = () => Response.json({ error: "Not signed in" }, { status: 401 });
-export const notFound = () => Response.json({ error: "Resume not found" }, { status: 404 });
