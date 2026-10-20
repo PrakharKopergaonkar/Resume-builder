@@ -14,8 +14,8 @@
 }
 
 body {
-  background: #f5f6f8;
-  color: #1f2328;
+  background: var(--page-bg);
+  color: var(--page-text);
   font-family: var(--font-sans);
 }
 

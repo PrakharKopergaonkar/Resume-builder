@@ -15,7 +15,7 @@
 .card {
   border-radius: $radius-xl;
   border: 1px solid $neutral-200;
-  background: $white;
+  background: $surface;
   box-shadow: $shadow-sm;
 }
 
@@ -47,7 +47,7 @@
     background: $neutral-50;
   }
   &:focus {
-    background: $white;
+    background: $surface;
     outline: none;
     box-shadow: 0 0 0 2px alpha($blue-600, 20%);
   }

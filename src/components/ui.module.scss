@@ -30,19 +30,19 @@
 }
 
 .primary {
-  background: $blue-700;
+  background: $accent;
   color: $white;
   &:hover {
-    background: $blue-800;
+    background: $accent-hover;
   }
   &:disabled {
-    background: $blue-300;
+    background: $accent-disabled;
   }
 }
 
 .secondary {
   border: 1px solid $neutral-300;
-  background: $white;
+  background: $surface;
   color: $neutral-800;
   &:hover {
     background: $neutral-50;
@@ -63,10 +63,10 @@
 }
 
 .danger {
-  background: $red-600;
+  background: $danger;
   color: $white;
   &:hover {
-    background: $red-700;
+    background: $danger-hover;
   }
 }
 
@@ -76,7 +76,7 @@
   width: 100%;
   border-radius: $radius-md;
   border: 1px solid $neutral-300;
-  background: $white;
+  background: $surface;
   padding: 0.375rem 0.625rem;
   color: $neutral-900;
   @include text-sm;
@@ -98,7 +98,7 @@
   width: 100%;
   border-radius: $radius-md;
   border: 1px solid $neutral-300;
-  background: $white;
+  background: $surface;
   padding: 0.375rem 0.625rem;
   color: $neutral-900;
   @include text-sm;
@@ -118,7 +118,7 @@
 
 .required {
   margin-left: 0.125rem;
-  color: $red-600;
+  color: $danger-text;
 }
 
 .fieldFooter {
@@ -130,7 +130,7 @@
 }
 
 .fieldError {
-  color: $red-600;
+  color: $danger-text;
 }
 
 .counter {
@@ -153,7 +153,7 @@
   transition-duration: $transition-duration;
 
   &[aria-checked="true"] {
-    background: $blue-700;
+    background: $accent;
   }
 }
 
@@ -162,7 +162,7 @@
   height: 1rem;
   width: 1rem;
   border-radius: $radius-full;
-  background: $white;
+  background: $white; // the knob stays white in both themes
   box-shadow: $shadow-sm;
   transition-property: transform, translate, scale, rotate;
   transition-timing-function: $transition-easing;

@@ -7,7 +7,7 @@
   align-items: center;
   gap: 0.75rem;
   border-bottom: 1px solid $neutral-200;
-  background: $white;
+  background: $surface;
   padding-inline: 0.75rem;
 }
 
@@ -48,7 +48,7 @@
     background: $neutral-50;
   }
   &:focus {
-    background: $white;
+    background: $surface;
     outline: none;
     box-shadow: 0 0 0 2px alpha($blue-600, 20%);
   }
@@ -63,7 +63,7 @@
 }
 
 .statusError {
-  color: $red-600;
+  color: $danger-text;
 }
 
 .rail {

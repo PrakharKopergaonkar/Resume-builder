@@ -36,7 +36,7 @@
   overflow: hidden;
   border-radius: $radius-lg;
   border: 2px solid $neutral-200;
-  background: $white;
+  background: $surface;
   text-align: left;
   transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, opacity, box-shadow;
   transition-timing-function: $transition-easing;
@@ -54,7 +54,7 @@
 
 .templateThumb {
   aspect-ratio: 3 / 4;
-  background: $white;
+  background: $white; // depicts a white page
 }
 
 .templateLabel {
@@ -103,7 +103,7 @@
 
 .sketchSide {
   width: 33.333333%;
-  border-right: 1px solid $neutral-200;
+  border-right: 1px solid $paper-neutral-200;
   padding-right: 0.25rem;
 }
 
@@ -137,10 +137,10 @@
 }
 
 .bgNeutral300 {
-  background: $neutral-300;
+  background: $paper-neutral-300;
 }
 .bgNeutral700 {
-  background: $neutral-700;
+  background: $paper-neutral-700;
 }
 
 // Stacks children 0.25rem apart (Tailwind's `space-y-1`).
@@ -165,7 +165,7 @@
 }
 
 .swatchSelected {
-  box-shadow: 0 0 0 2px $white, 0 0 0 4px $neutral-800;
+  box-shadow: 0 0 0 2px $surface, 0 0 0 4px $neutral-800;
 }
 
 .customColor {
@@ -195,7 +195,7 @@
   width: 100%;
   border-radius: $radius-md;
   border: 1px solid $neutral-300;
-  background: $white;
+  background: $surface;
   padding: 0.375rem 0.625rem;
   @include text-sm;
 }
@@ -204,7 +204,7 @@
   display: flex;
   border-radius: $radius-md;
   border: 1px solid $neutral-300;
-  background: $white;
+  background: $surface;
   padding: 0.125rem;
 }
 
@@ -221,7 +221,7 @@
 
 .segmentActive,
 .segmentActive:hover {
-  background: $blue-700;
+  background: $accent;
   color: $white;
 }
 
@@ -244,7 +244,7 @@
 
 .range {
   width: 100%;
-  accent-color: $blue-700;
+  accent-color: $accent;
 }
 
 // ---- paper size
@@ -261,7 +261,7 @@
 }
 
 .radio {
-  accent-color: $blue-700;
+  accent-color: $accent;
 }
 
 // ---- column assignment
@@ -273,7 +273,7 @@
 .columnList {
   border-radius: $radius-md;
   border: 1px solid $neutral-200;
-  background: $white;
+  background: $surface;
 
   > :not(:last-child) {
     border-bottom: 1px solid $neutral-100;
@@ -295,7 +295,7 @@
 .columnSelect {
   border-radius: 0.25rem;
   border: 1px solid $neutral-300;
-  background: $white;
+  background: $surface;
   padding: 0.125rem 0.375rem;
   @include text-sm;
 }

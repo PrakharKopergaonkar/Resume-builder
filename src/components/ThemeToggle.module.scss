@@ -1,0 +1,24 @@
+// Both icons are always rendered and CSS picks one from <html data-theme>, so the right icon shows from the
+// first paint (React only learns the theme after hydration).
+// A square, bordered button like Print / Download. `button.toggle` is more specific than the button's own
+// size class, so the horizontal padding reliably collapses.
+button.toggle {
+  width: 2.25rem;
+  padding-inline: 0;
+}
+
+.sun {
+  display: none;
+}
+
+.moon {
+  display: block;
+}
+
+:global([data-theme="dark"]) .sun {
+  display: block;
+}
+
+:global([data-theme="dark"]) .moon {
+  display: none;
+}

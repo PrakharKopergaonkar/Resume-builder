@@ -84,7 +84,7 @@ test("create, edit, download and delete a resume", async ({ page, request }) => 
   const row = page.getByTestId("resume-row").filter({ hasText: name });
   await expect(page.getByTestId("resume-row").first()).toContainText(name);
   await row.getByRole("button", { name: "More" }).click();
-  await row.getByRole("menuitem", { name: "Delete" }).click();
+  await page.getByRole("menuitem", { name: "Delete" }).click();
   await page.getByRole("dialog").getByRole("button", { name: "Delete" }).click();
   await expect(row).toHaveCount(0);
   expect((await request.get(`/api/resumes/${id}`)).status()).toBe(404);

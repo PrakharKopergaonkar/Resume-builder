@@ -38,7 +38,7 @@ export function PrintView({ params }: { params: Promise<{ id: string }> }) {
 
   const paper = PAPER[doc.style.paper];
   return (
-    <div className={styles.root} data-render-ready>
+    <div className={styles.root} data-render-ready data-theme="light">
       <style>{`@page { size: ${paper.css}; margin: ${PAGE_MARGIN_MM.y}mm ${PAGE_MARGIN_MM.x}mm; }`}</style>
       <div className={styles.sheet}>
         <ResumeRenderer resume={doc} />

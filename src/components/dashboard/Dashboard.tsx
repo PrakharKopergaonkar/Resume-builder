@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useState, useSyncExternalStore, useTransition } from "react";
 import { api } from "@/lib/api";
 import type { ResumeSummary } from "@/types/resume";
 import { Button, Icon, IconButton } from "@/components/ui";
 import { cx } from "@/lib/cx";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import styles from "./Dashboard.module.scss";
 import { ResumeActions } from "./ResumeActions";
 
@@ -46,6 +47,10 @@ export function Dashboard() {
   const [error, setError] = useState<string | null>(null);
   const view = useSyncExternalStore(viewStore.subscribe, viewStore.get, () => "list" as View);
   const [creating, setCreating] = useState(false);
+  // True while the page navigates to the new resume. A transition clears itself once navigation finishes, so
+  // the buttons are enabled again when you come back (the dashboard stays mounted while you are in the editor).
+  const [navigating, startNavigation] = useTransition();
+  const busy = creating || navigating;
 
   const refresh = useCallback(() => {
     api.list().then(setResumes, () => setError("Couldn’t load your resumes."));
@@ -61,9 +66,10 @@ export function Dashboard() {
     setCreating(true);
     try {
       const doc = await api.create({ sample });
-      router.push(`/resume/${doc.id}`);
+      startNavigation(() => router.push(`/resume/${doc.id}`));
     } catch {
       setError("Couldn’t create a resume.");
+    } finally {
       setCreating(false);
     }
   };
@@ -75,6 +81,9 @@ export function Dashboard() {
           <Icon name="file" size="md" className={styles.logo} />
           <span className={styles.brand}>Resume Builder</span>
           <span className={styles.localBadge}>local</span>
+          <div className={styles.topBarEnd}>
+            <ThemeToggle />
+          </div>
         </div>
       </header>
 
@@ -85,7 +94,7 @@ export function Dashboard() {
             <IconButton icon="list" label="List view" aria-pressed={view === "list"} active={view === "list"} onClick={() => changeView("list")} />
             <IconButton icon="grid" label="Grid view" aria-pressed={view === "grid"} active={view === "grid"} onClick={() => changeView("grid")} />
           </div>
-          <Button variant="primary" onClick={() => create(false)} disabled={creating}>
+          <Button variant="primary" onClick={() => create(false)} disabled={busy}>
             <Icon name="plus" /> Create New Resume
           </Button>
         </div>
@@ -100,10 +109,10 @@ export function Dashboard() {
             <h2 className={styles.emptyTitle}>No resumes yet</h2>
             <p className={styles.emptyHint}>Start from scratch or from a filled-in example.</p>
             <div className={styles.emptyActions}>
-              <Button variant="primary" onClick={() => create(false)} disabled={creating}>
+              <Button variant="primary" onClick={() => create(false)} disabled={busy}>
                 Create blank resume
               </Button>
-              <Button onClick={() => create(true)} disabled={creating}>
+              <Button onClick={() => create(true)} disabled={busy}>
                 Start from example
               </Button>
             </div>

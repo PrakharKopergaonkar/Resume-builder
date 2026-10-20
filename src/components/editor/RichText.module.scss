@@ -3,7 +3,7 @@
 .root {
   border-radius: $radius-md;
   border: 1px solid $neutral-300;
-  background: $white;
+  background: $surface;
 
   &:focus-within {
     border-color: $blue-600;
@@ -33,7 +33,7 @@
 .buttonActive,
 .buttonActive:hover {
   background: $blue-100;
-  color: $blue-800;
+  color: $accent-text-strong;
 }
 
 .bold {
@@ -68,7 +68,7 @@
   }
   p:global(.is-editor-empty):first-child::before {
     content: attr(data-placeholder);
-    color: #9ca3af;
+    color: $placeholder;
     float: left;
     height: 0;
     pointer-events: none;

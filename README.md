@@ -65,6 +65,16 @@ tests/e2e               playwright
 - Thumbnails are cached in `data/thumbnails/` and re-rendered when a resume changes.
 - Rich text is sanitized on save to `p, br, strong/b, em/i, u, ul, ol, li`.
 
+## Theme
+
+The sun/moon button in the header (dashboard and editor) switches between light and dark. A first visit follows your OS setting; once you click the button, your choice is remembered in the browser (`localStorage`, key `resume-builder:theme`). The resume paper stays white in both themes, and the print page, PDFs and thumbnails are always light.
+
+How it works:
+- `<html data-theme="light|dark">` selects a set of CSS custom properties defined in `src/styles/themes.scss`.
+- An inline script in `<head>` (`THEME_INIT_SCRIPT` in `src/lib/theme-shared.ts`) sets the attribute before the first paint, so there is no flash of the wrong theme.
+- `src/styles/_tokens.scss` exposes the colors to the `*.module.scss` files as Sass variables that resolve to `var(--…)`, so component styles work in both themes unchanged. Use the role tokens (`$surface`, `$accent-text`, `$danger-text`, …) rather than raw shades where a color has a specific job, and `$white` only for things that must stay white.
+- To tune the dark palette, edit the `[data-theme="dark"]` block in `themes.scss`.
+
 ## Styling
 
 Every component or page has its own `<Name>.module.scss` next to it (for example `Dashboard.tsx` and `Dashboard.module.scss`), imported as `styles` and applied with `className={styles.something}`. Use `cx()` from `src/lib/cx.ts` to combine classes conditionally. Colors, radii and shadows come from `src/styles/_tokens.scss`:

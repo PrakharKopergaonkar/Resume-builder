@@ -7,7 +7,7 @@
 // ---- top bar
 .topBar {
   border-bottom: 1px solid $neutral-200;
-  background: $white;
+  background: $surface;
 }
 
 .topBarInner {
@@ -21,12 +21,16 @@
 }
 
 .logo {
-  color: $blue-700;
+  color: $accent-text;
 }
 
 .brand {
   font-weight: 700;
   letter-spacing: -0.025em;
+}
+
+.topBarEnd {
+  margin-left: auto;
 }
 
 .localBadge {
@@ -67,7 +71,7 @@
   gap: 0.25rem;
   border-radius: $radius-md;
   border: 1px solid $neutral-200;
-  background: $white;
+  background: $surface;
   padding: 0.125rem;
 }
 
@@ -76,7 +80,7 @@
   border-radius: $radius-md;
   background: $red-50;
   padding: 0.5rem 0.75rem;
-  color: $red-700;
+  color: $danger-text-strong;
   @include text-sm;
 }
 
@@ -89,7 +93,7 @@
 .empty {
   border-radius: $radius-xl;
   border: 1px dashed $neutral-300;
-  background: $white;
+  background: $surface;
   padding: 4rem 1.5rem;
   text-align: center;
 }
@@ -122,7 +126,7 @@
 .tableWrap {
   border-radius: $radius-xl;
   border: 1px solid $neutral-200;
-  background: $white;
+  background: $surface;
 }
 
 .table {
@@ -177,7 +181,7 @@
   font-weight: 600;
   color: $neutral-900;
   &:hover {
-    color: $blue-700;
+    color: $accent-text;
   }
 }
 
@@ -194,7 +198,7 @@
   overflow: hidden;
   border-radius: $radius-xl;
   border: 1px solid $neutral-200;
-  background: $white;
+  background: $surface;
 }
 
 .cardThumbLink {
@@ -207,7 +211,7 @@
 .cardThumb {
   aspect-ratio: 210 / 297;
   width: 100%;
-  background: $white;
+  background: $white; // a thumbnail of a white page
   object-fit: cover;
   object-position: top;
   box-shadow: $shadow-sm;
@@ -227,7 +231,7 @@
   white-space: nowrap;
   font-weight: 600;
   &:hover {
-    color: $blue-700;
+    color: $accent-text;
   }
 }
 

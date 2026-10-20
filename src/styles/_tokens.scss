@@ -4,40 +4,60 @@
 // originally styled with, so converting a component never changes how it looks.
 // Colors are unquoted strings so Sass passes the oklch() values straight through to the browser.
 
-// --- neutral ---------------------------------------------------------------
-$neutral-50: string.unquote("oklch(98.5% 0 none)");
-$neutral-100: string.unquote("oklch(97% 0 none)");
-$neutral-200: string.unquote("oklch(92.2% 0 none)");
-$neutral-300: string.unquote("oklch(87% 0 none)");
-$neutral-400: string.unquote("oklch(70.8% 0 none)");
-$neutral-500: string.unquote("oklch(55.6% 0 none)");
-$neutral-600: string.unquote("oklch(43.9% 0 none)");
-$neutral-700: string.unquote("oklch(37.1% 0 none)");
-$neutral-800: string.unquote("oklch(26.9% 0 none)");
-$neutral-900: string.unquote("oklch(20.5% 0 none)");
+// --- colors ----------------------------------------------------------------
+// Themeable: every color below is a CSS custom property defined per theme in styles/themes.scss, so
+// the same SCSS works in light and dark. Use the role tokens (surface, accent*, danger*) where one
+// old color served two purposes.
 
-// --- blue ------------------------------------------------------------------
-$blue-50: string.unquote("oklch(97% 0.014 254.604)");
-$blue-100: string.unquote("oklch(93.2% 0.032 255.585)");
-$blue-200: string.unquote("oklch(88.2% 0.059 254.128)");
-$blue-300: string.unquote("oklch(80.9% 0.105 251.813)");
-$blue-400: string.unquote("oklch(70.7% 0.165 254.624)");
-$blue-500: string.unquote("oklch(62.3% 0.214 259.815)");
-$blue-600: string.unquote("oklch(54.6% 0.245 262.881)");
-$blue-700: string.unquote("oklch(48.8% 0.243 264.376)");
-$blue-800: string.unquote("oklch(42.4% 0.199 265.638)");
-$blue-900: string.unquote("oklch(37.9% 0.146 265.522)");
+// neutral scale (borders, muted backgrounds and text)
+$neutral-50: var(--neutral-50);
+$neutral-100: var(--neutral-100);
+$neutral-200: var(--neutral-200);
+$neutral-300: var(--neutral-300);
+$neutral-400: var(--neutral-400);
+$neutral-500: var(--neutral-500);
+$neutral-600: var(--neutral-600);
+$neutral-700: var(--neutral-700);
+$neutral-800: var(--neutral-800);
+$neutral-900: var(--neutral-900);
 
-// --- red / rose ------------------------------------------------------------
-$red-50: string.unquote("oklch(97.1% 0.013 17.38)");
-$red-500: string.unquote("oklch(63.7% 0.237 25.331)");
-$red-600: string.unquote("oklch(57.7% 0.245 27.325)");
-$red-700: string.unquote("oklch(50.5% 0.213 27.518)");
-$rose-400: string.unquote("oklch(71.2% 0.194 13.428)");
-$rose-500: string.unquote("oklch(64.5% 0.246 16.439)");
+// blue tints, borders and focus rings
+$blue-50: var(--blue-50);
+$blue-100: var(--blue-100);
+$blue-200: var(--blue-200);
+$blue-300: var(--blue-300);
+$blue-400: var(--blue-400);
+$blue-500: var(--blue-500);
+$blue-600: var(--blue-600);
 
+$red-50: var(--red-50);
+$red-500: var(--red-500);
+$red-600: var(--red-600);
+$rose-400: var(--rose-400);
+$rose-500: var(--rose-500);
+
+// roles
+$surface: var(--surface); // cards, inputs, toolbars (white in light)
+$accent: var(--accent); // primary button / toggle background
+$accent-hover: var(--accent-hover);
+$accent-disabled: var(--accent-disabled);
+$accent-text: var(--accent-text); // links and icons in the accent color
+$accent-text-strong: var(--accent-text-strong); // active tab / active toolbar button text
+$danger: var(--danger); // destructive button background
+$danger-hover: var(--danger-hover);
+$danger-text: var(--danger-text);
+$danger-text-strong: var(--danger-text-strong);
+$overlay: var(--overlay); // modal backdrop
+$placeholder: var(--placeholder);
+
+// Always white, in both themes: text on accent/danger buttons, the toggle knob, paper-like thumbnails.
 $white: #fff;
-$black: #000;
+
+// Fixed "paper" greys for the template thumbnails in the design panel (they depict a white page, so
+// they must not flip with the theme).
+$paper-neutral-200: string.unquote("oklch(92.2% 0 none)");
+$paper-neutral-300: string.unquote("oklch(87% 0 none)");
+$paper-neutral-700: string.unquote("oklch(37.1% 0 none)");
 
 // --- geometry / effects ----------------------------------------------------
 $radius-md: 0.375rem;

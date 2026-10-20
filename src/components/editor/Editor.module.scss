@@ -14,7 +14,7 @@
 }
 
 .notFoundLink {
-  color: $blue-700;
+  color: $accent-text;
   text-decoration: underline;
 }
 
@@ -44,7 +44,7 @@
   align-items: center;
   gap: 0.25rem;
   border-right: 1px solid $neutral-200;
-  background: $white;
+  background: $surface;
   padding-block: 0.75rem;
 }
 
@@ -67,7 +67,7 @@
 .tabActive,
 .tabActive:hover {
   background: $blue-50;
-  color: $blue-800;
+  color: $accent-text-strong;
 }
 
 .panel {

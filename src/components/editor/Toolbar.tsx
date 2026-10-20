@@ -6,6 +6,7 @@ import { api } from "@/lib/api";
 import { useEditor, type SaveState } from "@/store/editor";
 import { Button, Icon, IconButton } from "@/components/ui";
 import { cx } from "@/lib/cx";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import styles from "./Toolbar.module.scss";
 
 const SAVE_LABEL: Record<SaveState, string> = { saved: "Saved", unsaved: "Unsaved changes", saving: "Saving…", error: "Save failed" };
@@ -59,6 +60,7 @@ export function Toolbar() {
         <IconButton icon="undo" label="Undo (⌘Z)" disabled={!canUndo} onClick={undo} />
         <IconButton icon="redo" label="Redo (⇧⌘Z)" disabled={!canRedo} onClick={redo} />
         <div className={cx(styles.divider, styles.dividerInset)} />
+        <ThemeToggle />
         <Button variant="secondary" onClick={() => window.open(api.printUrl(id), "_blank")}>
           <Icon name="print" /> Print
         </Button>
