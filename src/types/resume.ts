@@ -57,6 +57,22 @@ export const customItemSchema = z.object({
   html: text,
 });
 
+const month = z.number().int().min(0).max(12); // 0 = not set
+const year = z.string().regex(/^(\d{4})?$/); // "" or "YYYY"
+
+/** Name and issuer are required in the form, but stay plain strings here so half-filled entries can autosave. */
+export const certificationItemSchema = z.object({
+  id,
+  name: text,
+  issuer: text,
+  issueMonth: month,
+  issueYear: year,
+  expiryMonth: month,
+  expiryYear: year,
+  credentialId: z.string().max(80),
+  credentialUrl: text,
+});
+
 const sectionBase = {
   id,
   title: text,
@@ -70,6 +86,7 @@ export const sectionSchema = z.discriminatedUnion("type", [
   z.object({ ...sectionBase, type: z.literal("education"), items: z.array(educationItemSchema) }),
   z.object({ ...sectionBase, type: z.literal("skills"), items: z.array(skillItemSchema) }),
   z.object({ ...sectionBase, type: z.literal("custom"), items: z.array(customItemSchema) }),
+  z.object({ ...sectionBase, type: z.literal("certifications"), items: z.array(certificationItemSchema) }),
 ]);
 
 export const contentSchema = z.object({
@@ -101,6 +118,7 @@ export type ExperienceItem = z.infer<typeof experienceItemSchema>;
 export type EducationItem = z.infer<typeof educationItemSchema>;
 export type SkillItem = z.infer<typeof skillItemSchema>;
 export type CustomItem = z.infer<typeof customItemSchema>;
+export type CertificationItem = z.infer<typeof certificationItemSchema>;
 export type Section = z.infer<typeof sectionSchema>;
 export type SectionType = Section["type"];
 export type ResumeContent = z.infer<typeof contentSchema>;

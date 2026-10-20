@@ -1,12 +1,15 @@
 import DOMPurify from "isomorphic-dompurify";
 import { prisma } from "@/lib/db";
 import { blankContent, DEFAULT_STYLE, sampleContent } from "@/lib/defaults";
+import { migrateContent } from "@/lib/migrate";
+import { normalizeUrl } from "@/components/renderer/format";
 import type { Resume } from "@/generated/prisma/client";
 import type { ResumeContent, ResumeDoc, ResumePatch, ResumeSummary, TemplateId } from "@/types/resume";
 
 const RICH_TEXT = { ALLOWED_TAGS: ["p", "br", "strong", "b", "em", "i", "u", "ul", "ol", "li"], ALLOWED_ATTR: [] };
 
 const clean = (html: string) => DOMPurify.sanitize(html, RICH_TEXT);
+
 
 /** Strips anything but basic formatting tags from every rich-text field. */
 export function sanitizeContent(content: ResumeContent): ResumeContent {
@@ -22,6 +25,8 @@ export function sanitizeContent(content: ResumeContent): ResumeContent {
           return { ...s, items: s.items.map((i) => ({ ...i, html: clean(i.html) })) } as typeof s;
         case "skills":
           return s;
+        case "certifications":
+          return { ...s, items: s.items.map((i) => ({ ...i, credentialUrl: normalizeUrl(i.credentialUrl) })) };
       }
     }),
   };
@@ -33,7 +38,7 @@ export function toDoc(r: Resume): ResumeDoc {
     name: r.name,
     templateId: r.templateId as TemplateId,
     style: { ...DEFAULT_STYLE, ...(r.style as object) },
-    content: r.content as ResumeContent,
+    content: migrateContent(r.content as ResumeContent),
     createdAt: r.createdAt.toISOString(),
     updatedAt: r.updatedAt.toISOString(),
   };

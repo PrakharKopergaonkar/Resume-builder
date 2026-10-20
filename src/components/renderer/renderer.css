@@ -103,6 +103,11 @@
 .r-rich {
   margin-top: 0.25em;
 }
+.resume-page a.r-cred-link {
+  color: var(--r-accent);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
 .r-rich p + p {
   margin-top: 0.35em;
 }
@@ -168,6 +173,10 @@
   outline: 1px dashed transparent;
   outline-offset: 3px;
   transition: outline-color 120ms;
+}
+/* In the editor, clicking a link selects its section instead of navigating. */
+.r-interactive a {
+  pointer-events: none;
 }
 .r-interactive:hover {
   outline-color: color-mix(in srgb, var(--r-accent) 55%, transparent);
@@ -260,4 +269,7 @@
 }
 .t-sidebar .r-col-left .r-entry-head {
   display: block;
+}
+.t-sidebar .r-col-left .r-entry-meta {
+  white-space: normal;
 }

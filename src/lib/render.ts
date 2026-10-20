@@ -42,7 +42,7 @@ export async function renderPdf(origin: string, doc: ResumeDoc): Promise<Uint8Ar
   return withPrintPage(origin, doc, (page) => page.pdf({ preferCSSPageSize: true, printBackground: true }));
 }
 
-const THUMB_DIR = path.join(process.cwd(), "data", "thumbnails");
+const THUMB_DIR = path.join(/* turbopackIgnore: true */ process.cwd(), "data", "thumbnails");
 const THUMB_SCALE = 0.5;
 
 async function renderThumbnail(origin: string, doc: ResumeDoc): Promise<Uint8Array> {

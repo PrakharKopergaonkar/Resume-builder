@@ -1,5 +1,5 @@
-import type { ResumeHeader, Section } from "@/types/resume";
-import { formatRange, hasText, joinParts } from "./format";
+import type { CertificationItem, ResumeHeader, Section } from "@/types/resume";
+import { formatMonthYear, formatRange, hasText, joinParts, normalizeUrl } from "./format";
 
 /** Rich text is sanitized on write by the API (src/lib/resumes.ts). */
 function Html({ html, className }: { html: string; className?: string }) {
@@ -21,7 +21,18 @@ export function isSectionVisible(s: Section): boolean {
       return s.items.some((i) => i.name.trim());
     case "custom":
       return s.items.some((i) => i.heading || hasText(i.html));
+    case "certifications":
+      return s.items.some((i) => i.name.trim());
   }
+}
+
+/** "Issued Mar 2024 · Expires Mar 2027"; "No expiration" only when an issue date is known. */
+export function certificationDates(i: CertificationItem): string {
+  const issued = formatMonthYear(i.issueMonth, i.issueYear);
+  const expires = formatMonthYear(i.expiryMonth, i.expiryYear);
+  if (issued && expires) return `Issued ${issued} · Expires ${expires}`;
+  if (issued) return `Issued ${issued} · No expiration`;
+  return expires ? `Expires ${expires}` : "";
 }
 
 function SkillLevel({ level }: { level: number }) {
@@ -95,6 +106,40 @@ export function SectionBody({ section, compact }: { section: Section; compact?: 
         </ul>
       );
     }
+
+    case "certifications":
+      return (
+        <>
+          {section.items
+            .filter((i) => i.name.trim())
+            .map((i) => {
+              const dates = certificationDates(i);
+              const url = normalizeUrl(i.credentialUrl);
+              return (
+                <div key={i.id} className="r-entry">
+                  <div className="r-entry-head">
+                    <div>
+                      <span className="r-entry-title">{i.name}</span>
+                      {i.issuer && <span className="r-entry-org"> · {i.issuer}</span>}
+                    </div>
+                    {dates && <div className="r-entry-meta">{dates}</div>}
+                  </div>
+                  {(i.credentialId || url) && (
+                    <div className="r-entry-sub">
+                      {i.credentialId && <span>Credential ID {i.credentialId}</span>}
+                      {i.credentialId && url && " · "}
+                      {url && (
+                        <a className="r-cred-link" href={url} target="_blank" rel="noreferrer">
+                          Show credential
+                        </a>
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+        </>
+      );
 
     case "custom":
       return (

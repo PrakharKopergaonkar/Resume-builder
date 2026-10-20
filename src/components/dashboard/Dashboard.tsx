@@ -109,13 +109,13 @@ export function Dashboard() {
         )}
 
         {resumes && resumes.length > 0 && view === "list" && (
-          <div className="overflow-hidden rounded-xl border border-neutral-200 bg-white">
+          <div className="rounded-xl border border-neutral-200 bg-white">
             <table className="w-full text-sm">
               <thead className="bg-neutral-50 text-left text-xs font-semibold uppercase tracking-wide text-neutral-500">
                 <tr>
                   <th className="px-4 py-2.5">Name</th>
-                  <th className="px-4 py-2.5">Modified</th>
-                  <th className="px-4 py-2.5">Created</th>
+                  <th className="hidden px-4 py-2.5 md:table-cell">Modified</th>
+                  <th className="hidden px-4 py-2.5 md:table-cell">Created</th>
                   <th className="px-4 py-2.5 text-right">Actions</th>
                 </tr>
               </thead>
@@ -127,8 +127,8 @@ export function Dashboard() {
                         {r.name}
                       </Link>
                     </td>
-                    <td className="px-4 py-3 text-neutral-600">{fmtDate(r.updatedAt)}</td>
-                    <td className="px-4 py-3 text-neutral-600">{fmtDate(r.createdAt)}</td>
+                    <td className="hidden px-4 py-3 text-neutral-600 md:table-cell">{fmtDate(r.updatedAt)}</td>
+                    <td className="hidden px-4 py-3 text-neutral-600 md:table-cell">{fmtDate(r.createdAt)}</td>
                     <td className="px-4 py-3">
                       <ResumeActions resume={r} onChanged={refresh} />
                     </td>

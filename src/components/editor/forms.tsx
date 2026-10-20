@@ -1,10 +1,11 @@
 "use client";
 
+import { useId, useState } from "react";
 import { arrayMove } from "@dnd-kit/sortable";
-import { emptyCustom, emptyEducation, emptyExperience, emptySkill, newId } from "@/lib/defaults";
+import { emptyCertification, emptyCustom, emptyEducation, emptyExperience, emptySkill, newId } from "@/lib/defaults";
 import { useEditor } from "@/store/editor";
-import type { ResumeHeader, Section } from "@/types/resume";
-import { Button, Icon, IconButton, TextField } from "@/components/ui";
+import type { CertificationItem, ResumeHeader, Section } from "@/types/resume";
+import { Button, fieldLabelClass, Icon, IconButton, TextField } from "@/components/ui";
 import { RichText } from "./RichText";
 import { DragHandle, SortableList } from "./Sortable";
 
@@ -283,6 +284,145 @@ function CustomForm({ section }: { section: SectionOf<"custom"> }) {
   );
 }
 
+const MONTH_NAMES = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+/** Newest first; extends 10 years ahead so future expiration dates can be picked. */
+const YEARS = (() => {
+  const now = new Date().getFullYear();
+  return Array.from({ length: now + 10 - 1970 + 1 }, (_, k) => String(now + 10 - k));
+})();
+
+const selectClass =
+  "block w-full rounded-md border border-neutral-300 bg-white px-2.5 py-1.5 text-sm text-neutral-900 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20";
+
+/** LinkedIn-style "Month" + "Year" dropdown pair. */
+function MonthYearField({
+  label,
+  month,
+  year,
+  onChange,
+}: {
+  label: string;
+  month: number;
+  year: string;
+  onChange: (next: { month: number; year: string }) => void;
+}) {
+  const id = useId();
+  return (
+    <fieldset>
+      <legend className="mb-1 text-sm font-semibold text-neutral-800">{label}</legend>
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label htmlFor={`${id}-m`} className={fieldLabelClass}>
+            Month
+          </label>
+          <select id={`${id}-m`} className={selectClass} value={month} onChange={(e) => onChange({ month: Number(e.target.value), year })}>
+            <option value={0}>Month</option>
+            {MONTH_NAMES.map((m, k) => (
+              <option key={m} value={k + 1}>
+                {m}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label htmlFor={`${id}-y`} className={fieldLabelClass}>
+            Year
+          </label>
+          <select id={`${id}-y`} className={selectClass} value={year} onChange={(e) => onChange({ month, year: e.target.value })}>
+            <option value="">Year</option>
+            {YEARS.map((y) => (
+              <option key={y} value={y}>
+                {y}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+    </fieldset>
+  );
+}
+
+/** True when the expiration is earlier than the issue date (months only compared when both are set). */
+function expiresBeforeIssued(i: CertificationItem): boolean {
+  if (!i.issueYear || !i.expiryYear) return false;
+  const iy = Number(i.issueYear);
+  const ey = Number(i.expiryYear);
+  if (ey !== iy || !i.issueMonth || !i.expiryMonth) return ey < iy;
+  return i.expiryMonth < i.issueMonth;
+}
+
+const isBlankCertification = (i: CertificationItem) =>
+  !i.name && !i.issuer && !i.issueYear && !i.issueMonth && !i.expiryYear && !i.expiryMonth && !i.credentialId && !i.credentialUrl;
+
+function CertificationsForm({ section }: { section: SectionOf<"certifications"> }) {
+  const editSection = useSectionEdit<"certifications">(section.id);
+  // Fields the user has left at least once, so a brand-new blank entry isn't flagged immediately.
+  const [touched, setTouched] = useState<Set<string>>(() => new Set());
+  const touch = (key: string) => setTouched((t) => (t.has(key) ? t : new Set(t).add(key)));
+
+  const setText = (i: number, id: string, field: "name" | "issuer" | "credentialId" | "credentialUrl") => (v: string) =>
+    editSection((s) => void (s.items[i][field] = v), `${id}:${field}`);
+  const setDate = (i: number, which: "issue" | "expiry") => (next: { month: number; year: string }) =>
+    editSection((s) => {
+      s.items[i][`${which}Month`] = next.month;
+      s.items[i][`${which}Year`] = next.year;
+    });
+
+  const requiredError = (item: CertificationItem, field: "name" | "issuer", message: string) =>
+    !item[field].trim() && (touched.has(`${item.id}:${field}`) || !isBlankCertification(item)) ? message : undefined;
+
+  return (
+    <ItemList
+      items={section.items}
+      noun="certification"
+      summary={(i) => [i.name, i.issuer].filter(Boolean).join(" · ")}
+      onMove={(a, b) => editSection((s) => void (s.items = arrayMove(s.items, a, b)))}
+      onAdd={() => editSection((s) => void s.items.push(emptyCertification()))}
+      onRemove={(i) => editSection((s) => void s.items.splice(i, 1))}
+      render={(item, i) => (
+        <div className="space-y-4">
+          <p className="text-xs text-neutral-500">
+            <span className="text-red-600">*</span> Indicates required
+          </p>
+          <TextField
+            label="Name"
+            required
+            value={item.name}
+            placeholder="Ex: Microsoft certified network associate security"
+            onChange={setText(i, item.id, "name")}
+            onBlur={() => touch(`${item.id}:name`)}
+            error={requiredError(item, "name", "Name is required")}
+          />
+          <TextField
+            label="Issuing organization"
+            required
+            value={item.issuer}
+            placeholder="Ex: Microsoft"
+            onChange={setText(i, item.id, "issuer")}
+            onBlur={() => touch(`${item.id}:issuer`)}
+            error={requiredError(item, "issuer", "Issuing organization is required")}
+          />
+          <MonthYearField label="Issue date" month={item.issueMonth} year={item.issueYear} onChange={setDate(i, "issue")} />
+          <MonthYearField label="Expiration date" month={item.expiryMonth} year={item.expiryYear} onChange={setDate(i, "expiry")} />
+          {expiresBeforeIssued(item) && (
+            <p role="alert" className="text-xs text-red-600">
+              Expiration date can’t be earlier than the issue date.
+            </p>
+          )}
+          <TextField label="Credential ID" value={item.credentialId} maxLength={80} onChange={setText(i, item.id, "credentialId")} />
+          <TextField
+            label="Credential URL"
+            type="url"
+            value={item.credentialUrl}
+            placeholder="https://"
+            onChange={setText(i, item.id, "credentialUrl")}
+          />
+        </div>
+      )}
+    />
+  );
+}
+
 export function SectionForm({ section }: { section: Section }) {
   switch (section.type) {
     case "summary":
@@ -295,5 +435,7 @@ export function SectionForm({ section }: { section: Section }) {
       return <SkillsForm section={section} />;
     case "custom":
       return <CustomForm section={section} />;
+    case "certifications":
+      return <CertificationsForm section={section} />;
   }
 }

@@ -40,7 +40,7 @@ export function ResumeActions({ resume, onChanged, compact }: { resume: ResumeSu
   const item = "flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-neutral-100";
 
   return (
-    <div className={`flex items-center gap-1 ${compact ? "" : "justify-end"}`}>
+    <div className={`flex flex-wrap items-center gap-1 ${compact ? "" : "justify-end"}`}>
       <Link href={`/resume/${resume.id}`} className="inline-flex h-8 items-center gap-1.5 rounded-md px-2.5 text-sm font-medium text-blue-700 hover:bg-blue-50">
         <Icon name="edit" /> Edit
       </Link>

@@ -1,4 +1,5 @@
 import type {
+  CertificationItem,
   CustomItem,
   EducationItem,
   ExperienceItem,
@@ -56,6 +57,18 @@ export const emptySkill = (): SkillItem => ({ id: newId(), name: "", level: 0 })
 
 export const emptyCustom = (): CustomItem => ({ id: newId(), heading: "", date: "", html: "" });
 
+export const emptyCertification = (): CertificationItem => ({
+  id: newId(),
+  name: "",
+  issuer: "",
+  issueMonth: 0,
+  issueYear: "",
+  expiryMonth: 0,
+  expiryYear: "",
+  credentialId: "",
+  credentialUrl: "",
+});
+
 /** Sections a user can add from the "Add section" panel. */
 export const SECTION_PRESETS: { key: string; title: string; type: Section["type"]; column: 0 | 1 }[] = [
   { key: "summary", title: "Summary", type: "summary", column: 1 },
@@ -63,7 +76,7 @@ export const SECTION_PRESETS: { key: string; title: string; type: Section["type"
   { key: "education", title: "Education", type: "education", column: 1 },
   { key: "skills", title: "Skills", type: "skills", column: 0 },
   { key: "languages", title: "Languages", type: "skills", column: 0 },
-  { key: "certifications", title: "Certifications", type: "custom", column: 1 },
+  { key: "certifications", title: "Certifications", type: "certifications", column: 1 },
   { key: "projects", title: "Projects", type: "custom", column: 1 },
   { key: "awards", title: "Awards", type: "custom", column: 1 },
   { key: "interests", title: "Interests", type: "skills", column: 0 },
@@ -82,6 +95,8 @@ export function makeSection(type: Section["type"], title: string, column: 0 | 1)
       return { ...base, type, items: [emptySkill()] };
     case "custom":
       return { ...base, type, items: [emptyCustom()] };
+    case "certifications":
+      return { ...base, type, items: [emptyCertification()] };
   }
 }
 
@@ -181,11 +196,23 @@ export function sampleContent(): ResumeContent {
       },
       {
         id: newId(),
-        type: "custom",
+        type: "certifications",
         title: "Certifications",
         hidden: false,
         column: 0,
-        items: [{ id: newId(), heading: "AWS Certified Developer – Associate", date: "2024", html: "" }],
+        items: [
+          {
+            id: newId(),
+            name: "AWS Certified Developer – Associate",
+            issuer: "Amazon Web Services",
+            issueMonth: 3,
+            issueYear: "2024",
+            expiryMonth: 3,
+            expiryYear: "2027",
+            credentialId: "AWS-DVA-123456",
+            credentialUrl: "https://www.credly.com/badges/example",
+          },
+        ],
       },
     ],
   };

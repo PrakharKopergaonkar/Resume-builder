@@ -1,7 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // The dev badge would otherwise show up in Puppeteer thumbnails.
+  devIndicators: false,
   cacheComponents: true,
   partialPrefetching: true,
   turbopack: {

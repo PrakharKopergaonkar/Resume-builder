@@ -37,25 +37,58 @@ export const Input = forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTML
   return <input ref={ref} className={`${inputClass} ${className}`} {...props} />;
 });
 
-/** Labelled text input bound to a string value. */
+export const fieldLabelClass = "mb-1 block text-xs font-semibold uppercase tracking-wide text-neutral-500";
+
+/** Labelled text input bound to a string value, with optional required marker, error and length counter. */
 export function TextField({
   label,
   value,
   onChange,
+  required,
+  error,
   className = "",
   ...props
 }: Omit<React.InputHTMLAttributes<HTMLInputElement>, "onChange" | "value"> & {
   label: string;
   value: string;
   onChange: (v: string) => void;
+  error?: string;
 }) {
   const id = useId();
+  const errorId = `${id}-error`;
+  const { maxLength } = props;
   return (
     <div className={className}>
-      <label htmlFor={id} className="mb-1 block text-xs font-semibold uppercase tracking-wide text-neutral-500">
+      <label htmlFor={id} className={fieldLabelClass}>
         {label}
+        {required && (
+          <span className="ml-0.5 text-red-600" aria-hidden>
+            *
+          </span>
+        )}
       </label>
-      <Input id={id} value={value} onChange={(e) => onChange(e.target.value)} {...props} />
+      <Input
+        id={id}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        aria-required={required || undefined}
+        aria-invalid={error ? true : undefined}
+        aria-describedby={error ? errorId : undefined}
+        className={error ? "border-red-500 focus:border-red-600 focus:ring-red-600/20" : ""}
+        {...props}
+      />
+      {(error || maxLength != null) && (
+        <div className="mt-1 flex justify-between gap-2 text-xs">
+          <span id={errorId} className="text-red-600">
+            {error}
+          </span>
+          {maxLength != null && (
+            <span className="tabular-nums text-neutral-500">
+              {value.length}/{maxLength}
+            </span>
+          )}
+        </div>
+      )}
     </div>
   );
 }
