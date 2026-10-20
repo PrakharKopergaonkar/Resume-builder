@@ -31,6 +31,19 @@
 
 .topBarEnd {
   margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.userName {
+  max-width: 14rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 500;
+  color: $neutral-700;
+  @include text-sm;
 }
 
 .localBadge {

@@ -44,8 +44,12 @@ export function toDoc(r: Resume): ResumeDoc {
   };
 }
 
-export async function listResumes(): Promise<ResumeSummary[]> {
+// Every function below is scoped to one user: a resume that doesn't exist and one that belongs to someone else
+// look the same (null / false), so callers answer 404 either way and IDs can't be probed.
+
+export async function listResumes(userId: string): Promise<ResumeSummary[]> {
   const rows = await prisma.resume.findMany({
+    where: { userId },
     select: { id: true, name: true, templateId: true, createdAt: true, updatedAt: true },
     orderBy: { updatedAt: "desc" },
   });
@@ -57,15 +61,16 @@ export async function listResumes(): Promise<ResumeSummary[]> {
   }));
 }
 
-export async function getResume(id: string) {
-  const r = await prisma.resume.findUnique({ where: { id } });
+export async function getResume(userId: string, id: string) {
+  const r = await prisma.resume.findFirst({ where: { id, userId } });
   return r ? toDoc(r) : null;
 }
 
-export async function createResume(opts: { name?: string; sample?: boolean } = {}) {
-  const count = await prisma.resume.count();
+export async function createResume(userId: string, opts: { name?: string; sample?: boolean } = {}) {
+  const count = await prisma.resume.count({ where: { userId } });
   const r = await prisma.resume.create({
     data: {
+      userId,
       name: opts.name?.trim() || `My Resume ${count + 1}`,
       templateId: "classic",
       style: DEFAULT_STYLE,
@@ -75,19 +80,20 @@ export async function createResume(opts: { name?: string; sample?: boolean } = {
   return toDoc(r);
 }
 
-export async function updateResume(id: string, patch: ResumePatch) {
-  const r = await prisma.resume.update({
-    where: { id },
+export async function updateResume(userId: string, id: string, patch: ResumePatch) {
+  const { count } = await prisma.resume.updateMany({
+    where: { id, userId },
     data: { ...patch, content: patch.content ? sanitizeContent(patch.content) : undefined },
   });
-  return toDoc(r);
+  return count > 0 ? getResume(userId, id) : null;
 }
 
-export async function duplicateResume(id: string) {
-  const src = await prisma.resume.findUnique({ where: { id } });
+export async function duplicateResume(userId: string, id: string) {
+  const src = await prisma.resume.findFirst({ where: { id, userId } });
   if (!src) return null;
   const r = await prisma.resume.create({
     data: {
+      userId,
       name: `${src.name} (copy)`,
       templateId: src.templateId,
       style: src.style ?? DEFAULT_STYLE,
@@ -97,7 +103,7 @@ export async function duplicateResume(id: string) {
   return toDoc(r);
 }
 
-export async function deleteResume(id: string) {
-  const { count } = await prisma.resume.deleteMany({ where: { id } });
+export async function deleteResume(userId: string, id: string) {
+  const { count } = await prisma.resume.deleteMany({ where: { id, userId } });
   return count > 0;
 }

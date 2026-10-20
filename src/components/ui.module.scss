@@ -133,6 +133,26 @@
   color: $danger-text;
 }
 
+.fieldHint {
+  color: $neutral-500;
+}
+
+.inputWrap {
+  position: relative;
+}
+
+// Leaves room for the end slot (e.g. a Show/Hide button) inside the input.
+.input.inputWithEnd {
+  padding-right: 4.25rem;
+}
+
+.inputEnd {
+  position: absolute;
+  top: 50%;
+  right: 0.25rem;
+  translate: 0 -50%;
+}
+
 .counter {
   font-variant-numeric: tabular-nums;
   color: $neutral-500;

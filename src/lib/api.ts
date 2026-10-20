@@ -1,12 +1,31 @@
 import type { ResumeDoc, ResumePatch, ResumeSummary } from "@/types/resume";
 
+export class ApiError extends Error {
+  constructor(
+    readonly status: number,
+    message: string,
+  ) {
+    super(message);
+  }
+}
+
+/** Sends the browser to the login page, returning here afterwards. */
+export function redirectToLogin() {
+  const next = window.location.pathname + window.location.search;
+  window.location.assign(next === "/" ? "/login" : `/login?next=${encodeURIComponent(next)}`);
+}
+
 async function request<T>(url: string, init?: RequestInit): Promise<T> {
   const res = await fetch(url, {
     ...init,
     headers: init?.body ? { "Content-Type": "application/json" } : undefined,
     cache: "no-store",
   });
-  if (!res.ok) throw new Error(`${init?.method ?? "GET"} ${url} failed: ${res.status}`);
+  if (!res.ok) {
+    // The session expired or was cleared: go and sign in again.
+    if (res.status === 401 && typeof window !== "undefined") redirectToLogin();
+    throw new ApiError(res.status, `${init?.method ?? "GET"} ${url} failed: ${res.status}`);
+  }
   return (res.status === 204 ? undefined : await res.json()) as T;
 }
 
@@ -23,4 +42,26 @@ export const api = {
   pdfUrl: (id: string) => `/api/resumes/${id}/pdf`,
   thumbnailUrl: (id: string, version: string) => `/api/resumes/${id}/thumbnail?v=${encodeURIComponent(version)}`,
   printUrl: (id: string) => `/print/${id}?autoprint=1`,
+};
+
+export type CurrentUser = { id: string; name: string; email: string };
+export type AuthResult = { ok: true; user: CurrentUser } | { ok: false; status: number; error: string; code?: string };
+
+/** Auth calls report failures to the caller (e.g. a wrong password is not a reason to redirect). */
+async function authRequest(url: string, body: unknown): Promise<AuthResult> {
+  try {
+    const res = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+    const data = await res.json().catch(() => ({}));
+    if (res.ok) return { ok: true, user: data as CurrentUser };
+    return { ok: false, status: res.status, error: data.error ?? "Something went wrong", code: data.code };
+  } catch {
+    return { ok: false, status: 0, error: "Something went wrong. Try again." };
+  }
+}
+
+export const authApi = {
+  signup: (body: { name: string; email: string; password: string }) => authRequest("/api/auth/signup", body),
+  login: (body: { email: string; password: string }) => authRequest("/api/auth/login", body),
+  logout: () => fetch("/api/auth/logout", { method: "POST" }),
+  me: () => request<CurrentUser>("/api/auth/me"),
 };

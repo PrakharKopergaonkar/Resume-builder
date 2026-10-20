@@ -2,6 +2,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import puppeteer, { type Browser, type Page } from "puppeteer";
 import { PAPER } from "@/lib/paper";
+import { SESSION_COOKIE } from "@/lib/auth/session";
 import type { ResumeDoc } from "@/types/resume";
 
 /**
@@ -25,29 +26,35 @@ async function getBrowser(): Promise<Browser> {
   return browser;
 }
 
-async function withPrintPage<T>(origin: string, doc: ResumeDoc, fn: (page: Page) => Promise<T>): Promise<T> {
+/**
+ * Opens /print/[id] in headless Chrome. The print page fetches the resume from the authenticated API, so the
+ * requesting user's own session token is set as a cookie on this page (callers have already checked ownership).
+ */
+async function withPrintPage<T>(origin: string, doc: ResumeDoc, sessionToken: string, fn: (page: Page) => Promise<T>): Promise<T> {
   const browser = await getBrowser();
-  const page = await browser.newPage();
+  const context = await browser.createBrowserContext(); // isolated cookie jar per render
+  const page = await context.newPage();
   try {
+    await context.setCookie({ name: SESSION_COOKIE, value: sessionToken, domain: new URL(origin).hostname, path: "/", httpOnly: true, sameSite: "Lax" });
     await page.goto(`${origin}/print/${doc.id}`, { waitUntil: "networkidle0", timeout: 60_000 });
     await page.waitForSelector("[data-render-ready]", { timeout: 30_000 });
     await page.evaluate(() => document.fonts.ready);
     return await fn(page);
   } finally {
-    await page.close().catch(() => {});
+    await context.close().catch(() => {});
   }
 }
 
-export async function renderPdf(origin: string, doc: ResumeDoc): Promise<Uint8Array> {
-  return withPrintPage(origin, doc, (page) => page.pdf({ preferCSSPageSize: true, printBackground: true }));
+export async function renderPdf(origin: string, doc: ResumeDoc, sessionToken: string): Promise<Uint8Array> {
+  return withPrintPage(origin, doc, sessionToken, (page) => page.pdf({ preferCSSPageSize: true, printBackground: true }));
 }
 
 const THUMB_DIR = path.join(/* turbopackIgnore: true */ process.cwd(), "data", "thumbnails");
 const THUMB_SCALE = 0.5;
 
-async function renderThumbnail(origin: string, doc: ResumeDoc): Promise<Uint8Array> {
+async function renderThumbnail(origin: string, doc: ResumeDoc, sessionToken: string): Promise<Uint8Array> {
   const { widthPx, heightPx } = PAPER[doc.style.paper];
-  return withPrintPage(origin, doc, async (page) => {
+  return withPrintPage(origin, doc, sessionToken, async (page) => {
     await page.setViewport({ width: Math.ceil(widthPx), height: Math.ceil(heightPx), deviceScaleFactor: THUMB_SCALE });
     const sheet = await page.$("[data-resume-page]");
     const box = await sheet?.boundingBox();
@@ -59,7 +66,7 @@ async function renderThumbnail(origin: string, doc: ResumeDoc): Promise<Uint8Arr
 }
 
 /** Returns a cached first-page PNG, re-rendering when the resume changed since it was cached. */
-export async function getThumbnail(origin: string, doc: ResumeDoc): Promise<Uint8Array> {
+export async function getThumbnail(origin: string, doc: ResumeDoc, sessionToken: string): Promise<Uint8Array> {
   const version = new Date(doc.updatedAt).getTime();
   const file = path.join(THUMB_DIR, `${doc.id}-${version}.png`);
   try {
@@ -67,7 +74,7 @@ export async function getThumbnail(origin: string, doc: ResumeDoc): Promise<Uint
   } catch {
     // cache miss
   }
-  const png = await renderThumbnail(origin, doc);
+  const png = await renderThumbnail(origin, doc, sessionToken);
   await clearThumbnail(doc.id);
   await fs.mkdir(THUMB_DIR, { recursive: true });
   await fs.writeFile(file, png);

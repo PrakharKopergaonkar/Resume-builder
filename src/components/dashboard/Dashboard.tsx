@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState, useSyncExternalStore, useTransition } from "react";
-import { api } from "@/lib/api";
+import { api, authApi, type CurrentUser } from "@/lib/api";
 import type { ResumeSummary } from "@/types/resume";
 import { Button, Icon, IconButton } from "@/components/ui";
 import { cx } from "@/lib/cx";
@@ -47,6 +47,7 @@ export function Dashboard() {
   const [error, setError] = useState<string | null>(null);
   const view = useSyncExternalStore(viewStore.subscribe, viewStore.get, () => "list" as View);
   const [creating, setCreating] = useState(false);
+  const [user, setUser] = useState<CurrentUser | null>(null);
   // True while the page navigates to the new resume. A transition clears itself once navigation finishes, so
   // the buttons are enabled again when you come back (the dashboard stays mounted while you are in the editor).
   const [navigating, startNavigation] = useTransition();
@@ -58,7 +59,15 @@ export function Dashboard() {
 
   useEffect(() => {
     refresh();
+    authApi.me().then(setUser, () => {}); // a 401 already redirects to /login
   }, [refresh]);
+
+  const logout = async () => {
+    await authApi.logout();
+    // A full page load (not router.push) so nothing from this user's session stays in the client-side cache.
+    // eslint-disable-next-line @next/next/no-location-assign-relative-destination
+    window.location.assign("/login");
+  };
 
   const changeView = viewStore.set;
 
@@ -82,7 +91,15 @@ export function Dashboard() {
           <span className={styles.brand}>Resume Builder</span>
           <span className={styles.localBadge}>local</span>
           <div className={styles.topBarEnd}>
+            {user && (
+              <span className={styles.userName} title={user.email}>
+                {user.name}
+              </span>
+            )}
             <ThemeToggle />
+            <Button variant="ghost" onClick={logout}>
+              Log out
+            </Button>
           </div>
         </div>
       </header>

@@ -1,0 +1,39 @@
+@use "../../styles/tokens" as *;
+
+.form > :not(:last-child) {
+  margin-bottom: 1rem;
+}
+
+.banner {
+  border: 1px solid alpha($red-500, 30%);
+  border-radius: $radius-md;
+  background: $red-50;
+  padding: 0.5rem 0.75rem;
+  color: $danger-text-strong;
+  @include text-sm;
+}
+
+// Full-width and a little taller than the default button (`button.submit` outranks the size class).
+button.submit {
+  width: 100%;
+  height: 2.5rem;
+  margin-top: 0.5rem;
+}
+
+.reveal {
+  border-radius: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  font-weight: 600;
+  color: $neutral-600;
+  @include text-xs;
+  &:hover {
+    background: $neutral-100;
+    color: $neutral-900;
+  }
+}
+
+.inlineLink {
+  font-weight: 600;
+  color: inherit;
+  text-decoration: underline;
+}

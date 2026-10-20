@@ -39,17 +39,35 @@ export function TextField({
   onChange,
   required,
   error,
+  hint,
+  end,
   className,
   ...props
 }: Omit<React.InputHTMLAttributes<HTMLInputElement>, "onChange" | "value"> & {
   label: string;
   value: string;
   onChange: (v: string) => void;
-  error?: string;
+  error?: React.ReactNode;
+  /** Helper text shown under the field when there is no error. */
+  hint?: string;
+  /** Content placed inside the input on the right, e.g. a Show/Hide button. */
+  end?: React.ReactNode;
 }) {
   const id = useId();
   const errorId = `${id}-error`;
   const { maxLength } = props;
+  const input = (
+    <Input
+      id={id}
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      aria-required={required || undefined}
+      aria-invalid={error ? true : undefined}
+      aria-describedby={error || hint ? errorId : undefined}
+      className={end ? styles.inputWithEnd : undefined}
+      {...props}
+    />
+  );
   return (
     <div className={className}>
       <label htmlFor={id} className={styles.fieldLabel}>
@@ -60,19 +78,18 @@ export function TextField({
           </span>
         )}
       </label>
-      <Input
-        id={id}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        aria-required={required || undefined}
-        aria-invalid={error ? true : undefined}
-        aria-describedby={error ? errorId : undefined}
-        {...props}
-      />
-      {(error || maxLength != null) && (
+      {end ? (
+        <div className={styles.inputWrap}>
+          {input}
+          <div className={styles.inputEnd}>{end}</div>
+        </div>
+      ) : (
+        input
+      )}
+      {(error || hint || maxLength != null) && (
         <div className={styles.fieldFooter}>
-          <span id={errorId} className={styles.fieldError}>
-            {error}
+          <span id={errorId} className={error ? styles.fieldError : styles.fieldHint}>
+            {error || hint}
           </span>
           {maxLength != null && (
             <span className={styles.counter}>

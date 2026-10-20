@@ -7,8 +7,21 @@ datasource db {
   provider = "sqlite"
 }
 
+model User {
+  id           String   @id @default(uuid())
+  /// Stored lower-cased and trimmed; unique per account.
+  email        String   @unique
+  name         String
+  /// scrypt hash: "scrypt$<salt>$<hash>" (see src/lib/auth/password.ts)
+  passwordHash String
+  createdAt    DateTime @default(now())
+  resumes      Resume[]
+}
+
 model Resume {
   id         String   @id @default(uuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   name       String
   templateId String   @default("classic")
   /// ResumeStyle (see src/types/resume.ts)
@@ -17,4 +30,6 @@ model Resume {
   content    Json
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
+
+  @@index([userId])
 }

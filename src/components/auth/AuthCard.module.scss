@@ -1,0 +1,70 @@
+@use "../../styles/tokens" as *;
+
+.page {
+  display: flex;
+  min-height: 100vh;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+}
+
+.card {
+  width: 100%;
+  max-width: 25rem;
+  border: 1px solid $neutral-200;
+  border-radius: $radius-xl;
+  background: $surface;
+  padding: 1.5rem 1.75rem 1.75rem;
+  box-shadow: $shadow-lg;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.brandIcon {
+  color: $accent-text;
+}
+
+.brandName {
+  font-weight: 700;
+  letter-spacing: -0.025em;
+}
+
+.brandEnd {
+  margin-left: auto;
+}
+
+.title {
+  @include text-2xl;
+  font-weight: 700;
+  color: $neutral-900;
+}
+
+.subtitle {
+  margin-top: 0.25rem;
+  color: $neutral-500;
+  @include text-sm;
+}
+
+.body {
+  margin-top: 1.5rem;
+}
+
+.footer {
+  margin-top: 1.25rem;
+  text-align: center;
+  color: $neutral-600;
+  @include text-sm;
+
+  a {
+    font-weight: 600;
+    color: $accent-text;
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}

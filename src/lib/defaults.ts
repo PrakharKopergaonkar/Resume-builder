@@ -217,3 +217,33 @@ export function sampleContent(): ResumeContent {
     ],
   };
 }
+
+/**
+ * The resume every new account starts with: the example content above (so users see what each section can hold),
+ * with their own name and email in the header and a Languages section showing skill levels.
+ */
+export function starterContent(user: { name: string; email: string }): ResumeContent {
+  const content = sampleContent();
+  const [firstName, ...rest] = user.name.trim().split(/\s+/);
+  content.header = {
+    ...content.header,
+    firstName: firstName ?? "",
+    lastName: rest.join(" "),
+    email: user.email,
+    links: [{ id: newId(), label: "LinkedIn", url: "linkedin.com/in/your-profile" }],
+  };
+  content.sections.push({
+    id: newId(),
+    type: "skills",
+    title: "Languages",
+    hidden: false,
+    column: 0,
+    items: [
+      { id: newId(), name: "English", level: 5 },
+      { id: newId(), name: "Spanish", level: 3 },
+    ],
+  });
+  return content;
+}
+
+export const STARTER_RESUME_NAME = "Sample Resume";

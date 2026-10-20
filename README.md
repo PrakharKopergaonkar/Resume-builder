@@ -10,8 +10,8 @@ Requires Node 20+.
 
 ```bash
 npm install          # also runs `prisma generate`
-npm run setup        # creates data/resumes.db and seeds a sample resume
-npm run dev          # http://localhost:3000
+npm run setup        # generates AUTH_SECRET in .env (if missing) and creates/migrates data/resumes.db
+npm run dev          # http://localhost:3000 → create an account on the sign-up page
 ```
 
 `npm install` downloads a Chromium build for Puppeteer (~170 MB), which is used for PDF export. npm's `allowScripts` in `package.json` lists the packages that are allowed to run install scripts.
@@ -64,6 +64,16 @@ tests/e2e               playwright
 - The first PDF after a server start takes a few seconds while Chrome launches. Later ones reuse the browser and take about 1–2 s.
 - Thumbnails are cached in `data/thumbnails/` and re-rendered when a resume changes.
 - Rich text is sanitized on save to `p, br, strong/b, em/i, u, ul, ol, li`.
+
+## Accounts
+
+Everyone signs up with a name, email and password (`/signup`) and then sees only their own resumes. New accounts start with a "Sample Resume" filled with example content (and their own name and email) to show what each section can hold.
+
+- **Sessions:** a JWT (HS256, signed with `AUTH_SECRET` from `.env`, valid for 7 days) in an httpOnly `session` cookie. Log out from the dashboard header.
+- **Access rules:** API calls without a valid session get **401**; another user's resume answers **404**, as if it didn't exist. Signed-out visitors to any page are sent to `/login` and returned afterwards (`src/proxy.ts`).
+- **Passwords** are hashed with scrypt (`src/lib/auth/password.ts`); login gives the same error for an unknown email and a wrong password.
+- **Code:** helpers in `src/lib/auth/`, endpoints in `src/app/api/auth/`, screens in `src/app/login`, `src/app/signup` and `src/components/auth/`. Every function in `src/lib/resumes.ts` takes the user's id and only touches that user's rows.
+- **E2E tests** sign up a throwaway `@test.local` user in `tests/e2e/global-setup.ts`; teardown removes all `@test.local` accounts again.
 
 ## Theme
 
