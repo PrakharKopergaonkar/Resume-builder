@@ -31,6 +31,7 @@ npm run dev          # http://localhost:3000 → create an account on the sign-u
   - Drag the divider between the form panel and the preview to resize them (320–720 px; the preview keeps at least 420 px). Arrow keys also work on the divider, double-click resets, and the width is remembered per browser.
 - **Design:** three templates (Classic, Modern, Sidebar), accent color, font, font size, section and line spacing, A4 or US Letter, and left/right column choice for the Sidebar template.
 - **PDF:** `GET /api/resumes/:id/pdf`. Headless Chrome prints `/print/[id]`, which uses the same `<ResumeRenderer>` as the preview, so the PDF matches what you see.
+- **Word (.docx):** `GET /api/resumes/:id/docx`, built on the server with the `docx` package (`src/lib/docx/`). It's one clean, single-column, ATS-friendly layout for every template, keeping the resume's accent color, font size, spacing and paper size. Fonts map to ones every machine has (sans → Arial, Georgia → Georgia). Section titles are real Heading 2s and lists are real Word lists. The **Download** menu (editor toolbar and each dashboard resume) offers PDF and Word.
 
 ## Layout
 

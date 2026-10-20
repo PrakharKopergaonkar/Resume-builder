@@ -69,10 +69,20 @@ test("create, edit, download and delete a resume", async ({ page, request }) => 
   await expect(page.locator(".t-sidebar")).toBeVisible();
 
   // Download from the editor.
+  // Download menu: PDF and Word.
   const downloadPromise = page.waitForEvent("download");
-  await page.getByRole("button", { name: "Download PDF" }).click();
+  await page.getByRole("button", { name: "Download" }).click();
+  await page.getByRole("menuitem", { name: "PDF" }).click();
   const download = await downloadPromise;
   expect(download.suggestedFilename()).toBe(`${name}.pdf`);
+
+  const wordPromise = page.waitForEvent("download");
+  await page.getByRole("button", { name: "Download" }).click();
+  await page.getByRole("menuitem", { name: "Word (.docx)" }).click();
+  const word = await wordPromise;
+  expect(word.suggestedFilename()).toBe(`${name}.docx`);
+  const { readFile } = await import("node:fs/promises");
+  expect((await readFile((await word.path())!)).subarray(0, 2).toString()).toBe("PK"); // a .docx is a zip file
 
   const pdf = await request.get(`/api/resumes/${id}/pdf`);
   expect(pdf.headers()["content-type"]).toBe("application/pdf");

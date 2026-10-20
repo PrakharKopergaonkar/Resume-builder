@@ -1,0 +1,38 @@
+@use "../styles/tokens" as *;
+
+.wrap {
+  position: relative;
+  display: inline-flex;
+}
+
+// Rendered in a portal on <body> and positioned by Menu.tsx from its button.
+.menu {
+  position: fixed;
+  z-index: 40;
+  width: 10rem;
+  overflow: hidden;
+  border-radius: $radius-lg;
+  border: 1px solid $neutral-200;
+  background: $surface;
+  padding-block: 0.25rem;
+  box-shadow: $shadow-lg;
+}
+
+.item {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  @include text-sm;
+  &:hover,
+  &:focus-visible {
+    background: $neutral-100;
+    outline: none;
+  }
+}
+
+.danger {
+  color: $danger-text;
+}

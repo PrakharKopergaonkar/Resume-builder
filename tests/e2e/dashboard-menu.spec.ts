@@ -59,10 +59,23 @@ test("the More menu works in the grid view, including the last card", async ({ p
   await expect(cards).toHaveCount(before + 1);
   await expect(page.getByRole("menu")).toHaveCount(0);
 
-  // scrolling closes the menu instead of leaving it floating
-  await cards.first().getByRole("button", { name: "More" }).click();
+  // the menu stays attached to its button while the page scrolls, and closes once the button leaves the screen
+  await page.evaluate(() => window.scrollTo(0, 0));
+  const firstMore = cards.first().getByRole("button", { name: "More" });
+  await firstMore.click();
   await expect(page.getByRole("menu")).toBeVisible();
-  await page.mouse.wheel(0, 300);
+  await page.evaluate(() => window.scrollBy(0, 40));
+  // Still 4px from its button, on whichever side it opened (below, or above when there's no room below).
+  await expect
+    .poll(async () => {
+      const m = (await page.getByRole("menu").boundingBox())!;
+      const b = (await firstMore.boundingBox())!;
+      const below = m.y - (b.y + b.height);
+      const above = b.y - (m.y + m.height);
+      return Math.min(Math.abs(below - 4), Math.abs(above - 4));
+    })
+    .toBeLessThanOrEqual(2);
+  await page.evaluate(() => window.scrollBy(0, 2000));
   await expect(page.getByRole("menu")).toHaveCount(0);
 });
 
@@ -74,4 +87,25 @@ test("the More menu still works in the list view", async ({ page }) => {
   await expectMenuUsable(page);
   await page.getByRole("menuitem", { name: "Rename" }).click();
   await expect(page.getByRole("dialog", { name: "Rename resume" })).toBeVisible();
+});
+
+test("Download offers PDF and Word from a grid card", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "Grid view" }).click();
+  const card = page.getByTestId("resume-card").filter({ hasText: "Menu test 4" }).first();
+  await expect(card).toBeVisible();
+
+  await card.getByRole("button", { name: "Download" }).click();
+  await expectMenuUsable(page);
+  await expect(page.getByRole("menuitem")).toHaveText(["PDF", "Word (.docx)"]);
+
+  const wordPromise = page.waitForEvent("download");
+  await page.getByRole("menuitem", { name: "Word (.docx)" }).click();
+  const word = await wordPromise;
+  expect(word.suggestedFilename()).toBe("Menu test 4.docx");
+
+  const pdfPromise = page.waitForEvent("download");
+  await card.getByRole("button", { name: "Download" }).click();
+  await page.getByRole("menuitem", { name: "PDF" }).click();
+  expect((await pdfPromise).suggestedFilename()).toBe("Menu test 4.pdf");
 });

@@ -7,6 +7,7 @@ import { useEditor, type SaveState } from "@/store/editor";
 import { Button, Icon, IconButton } from "@/components/ui";
 import { cx } from "@/lib/cx";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { downloadFile, Menu } from "@/components/Menu";
 import styles from "./Toolbar.module.scss";
 
 const SAVE_LABEL: Record<SaveState, string> = { saved: "Saved", unsaved: "Unsaved changes", saving: "Saving…", error: "Save failed" };
@@ -70,24 +71,30 @@ export function Toolbar() {
   );
 }
 
-/** Waits for pending autosaves so the PDF always reflects what's on screen. */
+/** Download menu (PDF / Word). Waits for pending autosaves so the file always reflects what's on screen. */
 export function DownloadButton({ id, saveState }: { id: string; saveState: SaveState }) {
   const [busy, setBusy] = useState(false);
-  const download = async () => {
+  const download = async (url: string) => {
     setBusy(true);
     try {
       await waitForSaved();
-      const a = document.createElement("a");
-      a.href = api.pdfUrl(id);
-      a.click();
+      downloadFile(url);
     } finally {
       setTimeout(() => setBusy(false), 1500);
     }
   };
   return (
-    <Button variant="primary" onClick={download} disabled={busy || saveState === "error"}>
-      <Icon name="download" /> {busy ? "Preparing…" : "Download PDF"}
-    </Button>
+    <Menu
+      items={[
+        { label: "PDF", icon: "file", onSelect: () => download(api.pdfUrl(id)) },
+        { label: "Word (.docx)", icon: "file", onSelect: () => download(api.docxUrl(id)) },
+      ]}
+      trigger={(props) => (
+        <Button variant="primary" disabled={busy || saveState === "error"} {...props}>
+          <Icon name="download" /> {busy ? "Preparing…" : "Download"} <Icon name="chevronDown" />
+        </Button>
+      )}
+    />
   );
 }
 

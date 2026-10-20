@@ -40,6 +40,7 @@ export const api = {
   duplicate: (id: string) => request<ResumeDoc>(`/api/resumes/${id}/duplicate`, { method: "POST" }),
   remove: (id: string) => request<void>(`/api/resumes/${id}`, { method: "DELETE" }),
   pdfUrl: (id: string) => `/api/resumes/${id}/pdf`,
+  docxUrl: (id: string) => `/api/resumes/${id}/docx`,
   thumbnailUrl: (id: string, version: string) => `/api/resumes/${id}/thumbnail?v=${encodeURIComponent(version)}`,
   printUrl: (id: string) => `/print/${id}?autoprint=1`,
 };

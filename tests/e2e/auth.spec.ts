@@ -134,6 +134,7 @@ test("the API: 401 without a valid session, 404 for someone else's resume", asyn
   for (const ctx of [anon, forged]) {
     expect((await ctx.get("/api/resumes")).status()).toBe(401);
     expect((await ctx.get(url)).status()).toBe(401);
+    expect((await ctx.get(`${url}/docx`)).status()).toBe(401);
     expect((await ctx.get("/api/auth/me")).status()).toBe(401);
   }
 
@@ -143,6 +144,7 @@ test("the API: 401 without a valid session, 404 for someone else's resume", asyn
     ["DELETE", () => b.api.delete(url)],
     ["duplicate", () => b.api.post(`${url}/duplicate`)],
     ["pdf", () => b.api.get(`${url}/pdf`)],
+    ["docx", () => b.api.get(`${url}/docx`)],
     ["thumbnail", () => b.api.get(`${url}/thumbnail`)],
   ];
   for (const [what, call] of asB) expect((await call()).status(), what).toBe(404);

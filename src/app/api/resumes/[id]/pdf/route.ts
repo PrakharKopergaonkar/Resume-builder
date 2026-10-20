@@ -1,13 +1,7 @@
 import { getCurrentUser, getSessionToken, notFound, unauthorized } from "@/lib/auth/guard";
 import { getResume } from "@/lib/resumes";
+import { attachmentHeader } from "@/lib/download";
 import { renderPdf } from "@/lib/render";
-
-/** Safe ASCII filename for Content-Disposition, plus an RFC 5987 UTF-8 variant. */
-function disposition(name: string) {
-  const base = name.trim() || "resume";
-  const ascii = base.replace(/[^\w.\- ]+/g, "_");
-  return `attachment; filename="${ascii}.pdf"; filename*=UTF-8''${encodeURIComponent(base)}.pdf`;
-}
 
 export async function GET(req: Request, ctx: RouteContext<"/api/resumes/[id]/pdf">) {
   const user = await getCurrentUser();
@@ -20,7 +14,7 @@ export async function GET(req: Request, ctx: RouteContext<"/api/resumes/[id]/pdf
   return new Response(new Uint8Array(pdf), {
     headers: {
       "Content-Type": "application/pdf",
-      "Content-Disposition": disposition(doc.name),
+      "Content-Disposition": attachmentHeader(doc.name, "pdf"),
       "Cache-Control": "no-store",
     },
   });
