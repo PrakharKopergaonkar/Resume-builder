@@ -83,6 +83,12 @@
   @include text-lg;
 }
 
+.codeLoading {
+  padding: 1rem;
+  color: $neutral-500;
+  @include text-sm;
+}
+
 .preview {
   min-width: 0;
   flex: 1;

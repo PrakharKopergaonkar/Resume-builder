@@ -88,6 +88,7 @@ export function DownloadButton({ id, saveState }: { id: string; saveState: SaveS
       items={[
         { label: "PDF", icon: "file", onSelect: () => download(api.pdfUrl(id)) },
         { label: "Word (.docx)", icon: "file", onSelect: () => download(api.docxUrl(id)) },
+        { label: "JSON Resume (.json)", icon: "code", onSelect: () => download(api.jsonResumeUrl(id)) },
       ]}
       trigger={(props) => (
         <Button variant="primary" disabled={busy || saveState === "error"} {...props}>

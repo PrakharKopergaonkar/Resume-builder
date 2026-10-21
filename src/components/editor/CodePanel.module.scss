@@ -1,0 +1,91 @@
+@use "../../styles/tokens" as *;
+
+// Fills the form panel below its title (toolbar 3.5rem + panel title ~3.25rem).
+.root {
+  display: flex;
+  height: calc(100vh - 6.75rem);
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem 1rem;
+}
+
+.bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-weight: 600;
+  color: $neutral-600;
+  @include text-xs;
+
+  &[data-status="invalid"] {
+    color: $danger-text;
+  }
+}
+
+.actions {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.editor {
+  min-height: 0;
+  flex: 1;
+  overflow: hidden;
+  border: 1px solid $neutral-300;
+  border-radius: $radius-md;
+
+  &:focus-within {
+    border-color: $blue-600;
+    box-shadow: 0 0 0 2px alpha($blue-600, 20%);
+  }
+}
+
+.errors {
+  max-height: 7rem;
+  overflow-y: auto;
+  border: 1px solid alpha($red-500, 30%);
+  border-radius: $radius-md;
+  background: $red-50;
+  padding: 0.5rem 0.75rem;
+  color: $danger-text-strong;
+  @include text-xs;
+
+  li + li {
+    margin-top: 0.25rem;
+  }
+}
+
+.warnings {
+  max-height: 5rem;
+  overflow-y: auto;
+  border: 1px solid $warning-border;
+  border-radius: $radius-md;
+  background: $warning-bg;
+  padding: 0.5rem 0.75rem;
+  color: $warning-text;
+  @include text-xs;
+
+  li + li {
+    margin-top: 0.25rem;
+  }
+}
+
+.hint {
+  color: $neutral-500;
+  @include text-xs;
+
+  kbd {
+    border: 1px solid $neutral-300;
+    border-radius: 0.25rem;
+    padding: 0 0.25rem;
+    font-family: inherit;
+    font-size: 0.6875rem;
+  }
+}

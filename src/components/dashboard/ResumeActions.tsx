@@ -32,6 +32,7 @@ export function ResumeActions({ resume, onChanged, compact }: { resume: ResumeSu
         items={[
           { label: "PDF", icon: "file", onSelect: () => downloadFile(api.pdfUrl(resume.id)) },
           { label: "Word (.docx)", icon: "file", onSelect: () => downloadFile(api.docxUrl(resume.id)) },
+          { label: "JSON Resume (.json)", icon: "code", onSelect: () => downloadFile(api.jsonResumeUrl(resume.id)) },
         ]}
         trigger={(props) => (
           <button type="button" className={styles.linkAction} {...props}>

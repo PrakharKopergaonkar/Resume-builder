@@ -80,6 +80,14 @@ export async function createResume(userId: string, opts: { name?: string; sample
   return toDoc(r);
 }
 
+/** Creates a resume from ready-made content (e.g. an imported JSON Resume). Rich text is sanitized like any save. */
+export async function createResumeFromContent(userId: string, name: string, content: ResumeContent) {
+  const r = await prisma.resume.create({
+    data: { userId, name: name.trim().slice(0, 200) || "Imported resume", templateId: "classic", style: DEFAULT_STYLE, content: sanitizeContent(content) },
+  });
+  return toDoc(r);
+}
+
 export async function updateResume(userId: string, id: string, patch: ResumePatch) {
   const { count } = await prisma.resume.updateMany({
     where: { id, userId },

@@ -128,6 +128,7 @@ const PATHS = {
   undo: "M9 14 4 9l5-5M4 9h11a5 5 0 0 1 0 10h-3",
   redo: "m15 14 5-5-5-5M20 9H9a5 5 0 0 0 0 10h3",
   download: "M12 4v12m0 0-5-5m5 5 5-5M5 20h14",
+  upload: "M12 16V4m0 0-5 5m5-5 5 5M5 20h14",
   print: "M7 9V3h10v6M7 17H5a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2M7 14h10v7H7z",
   edit: "M4 20h4L19 9l-4-4L4 16v4zM14 6l4 4",
   more: "M5 12h.01M12 12h.01M19 12h.01",
@@ -146,6 +147,7 @@ const PATHS = {
   close: "M6 6l12 12M18 6 6 18",
   sun: "M12 3v2M12 19v2M5.6 5.6 7 7M17 17l1.4 1.4M3 12h2M19 12h2M5.6 18.4 7 17M17 7l1.4-1.4M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z",
   moon: "M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z",
+  code: "M8 8 4 12l4 4M16 8l4 4-4 4M13.5 5l-3 14",
 } as const;
 
 export type IconName = keyof typeof PATHS;

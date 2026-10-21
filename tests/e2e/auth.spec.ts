@@ -1,5 +1,5 @@
 import { expect, request, test, type APIRequestContext, type Page } from "@playwright/test";
-import { deleteUser, newUser, TEST_PASSWORD, uniqueEmail } from "./auth-helpers";
+import { deleteUser, newUser, openDatabase, TEST_PASSWORD, uniqueEmail } from "./auth-helpers";
 
 // These tests manage their own sessions: start every page signed out.
 test.use({ storageState: { cookies: [], origins: [] } });
@@ -135,6 +135,8 @@ test("the API: 401 without a valid session, 404 for someone else's resume", asyn
     expect((await ctx.get("/api/resumes")).status()).toBe(401);
     expect((await ctx.get(url)).status()).toBe(401);
     expect((await ctx.get(`${url}/docx`)).status()).toBe(401);
+    expect((await ctx.get(`${url}/json-resume`)).status()).toBe(401);
+    expect((await ctx.post("/api/resumes/import", { data: { resume: { basics: { name: "X" } } } })).status()).toBe(401);
     expect((await ctx.get("/api/auth/me")).status()).toBe(401);
   }
 
@@ -145,6 +147,7 @@ test("the API: 401 without a valid session, 404 for someone else's resume", asyn
     ["duplicate", () => b.api.post(`${url}/duplicate`)],
     ["pdf", () => b.api.get(`${url}/pdf`)],
     ["docx", () => b.api.get(`${url}/docx`)],
+    ["json-resume", () => b.api.get(`${url}/json-resume`)],
     ["thumbnail", () => b.api.get(`${url}/thumbnail`)],
   ];
   for (const [what, call] of asB) expect((await call()).status(), what).toBe(404);
@@ -171,4 +174,21 @@ test("login rejects unknown emails with the same message as wrong passwords", as
   expect(res.status()).toBe(401);
   expect((await res.json()).error).toBe("Email or password is incorrect");
   await api.dispose();
+});
+
+test("a session whose account no longer exists is cleared instead of looping between pages", async ({ page }) => {
+  const email = uniqueEmail("removed");
+  const signup = await page.request.post("/api/auth/signup", { data: { name: "Removed", email, password: TEST_PASSWORD } });
+  expect(signup.status()).toBe(201);
+  const db = openDatabase();
+  db.prepare("DELETE FROM User WHERE email = ?").run(email);
+  db.close();
+
+  const res = await page.request.get("/api/auth/me");
+  expect(res.status()).toBe(401);
+  expect(res.headers()["set-cookie"]).toMatch(/session=;.*Max-Age=0/i);
+
+  await page.goto("/");
+  await expect(page).toHaveURL(/\/login$/);
+  await expect(page.getByRole("button", { name: "Log in" })).toBeVisible();
 });

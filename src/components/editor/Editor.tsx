@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { use, useEffect, useRef, useState } from "react";
 import { api } from "@/lib/api";
 import { clampLeftWidth, DEFAULT_LEFT_WIDTH, readStoredLeftWidth, storeLeftWidth } from "@/lib/panel-width";
@@ -15,13 +16,21 @@ import styles from "./Editor.module.scss";
 import { Preview } from "./Preview";
 import { ResizeHandle } from "./ResizeHandle";
 import { Toolbar } from "./Toolbar";
+import { ImportNotice } from "./ImportNotice";
 
-type Tab = "content" | "design" | "add";
+type Tab = "content" | "design" | "add" | "code";
 const TABS: { id: Tab; label: string; icon: IconName }[] = [
   { id: "content", label: "Content", icon: "edit" },
   { id: "design", label: "Design", icon: "palette" },
   { id: "add", label: "Add section", icon: "plus" },
+  { id: "code", label: "Code", icon: "code" },
 ];
+
+// Loaded only when the Code tab is opened (CodeMirror and the YAML parser stay out of the main bundle).
+const CodePanel = dynamic(() => import("./CodePanel").then((m) => m.CodePanel), {
+  ssr: false,
+  loading: () => <p className={styles.codeLoading}>Loading code editor…</p>,
+});
 
 const isTyping = (t: EventTarget | null) =>
   t instanceof HTMLElement && (t.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(t.tagName));
@@ -64,6 +73,7 @@ export function Editor({ params }: { params: Promise<{ id: string }> }) {
   return (
     <div className={styles.editor}>
       <Toolbar />
+      <ImportNotice />
       <Workspace doc={doc} />
     </div>
   );
@@ -116,6 +126,7 @@ function Workspace({ doc }: { doc: Snapshot }) {
         {tab === "content" && <ContentPanel content={doc.content} />}
         {tab === "design" && <DesignPanel doc={doc} />}
         {tab === "add" && <AddSectionPanel doc={doc} onAdded={() => setTab("content")} />}
+        {tab === "code" && <CodePanel />}
       </aside>
       <ResizeHandle value={leftWidth} onChange={setLeftWidth} onCommit={storeLeftWidth} getArea={getArea} />
       <main className={styles.preview}>

@@ -53,10 +53,12 @@ test("the More menu works in the grid view, including the last card", async ({ p
   await last.getByRole("button", { name: "More" }).click();
   await expectMenuUsable(page);
 
-  // an action works from the portal menu: Duplicate adds a card
-  const before = await cards.count();
+  // an action works from the portal menu: Duplicate adds a card (counted among our own, since other specs
+  // running in parallel add and remove resumes in the same account)
+  const ours = cards.filter({ hasText: "Menu test" });
+  const before = await ours.count();
   await page.getByRole("menuitem", { name: "Duplicate" }).click();
-  await expect(cards).toHaveCount(before + 1);
+  await expect(ours).toHaveCount(before + 1);
   await expect(page.getByRole("menu")).toHaveCount(0);
 
   // the menu stays attached to its button while the page scrolls, and closes once the button leaves the screen
@@ -97,7 +99,7 @@ test("Download offers PDF and Word from a grid card", async ({ page }) => {
 
   await card.getByRole("button", { name: "Download" }).click();
   await expectMenuUsable(page);
-  await expect(page.getByRole("menuitem")).toHaveText(["PDF", "Word (.docx)"]);
+  await expect(page.getByRole("menuitem")).toHaveText(["PDF", "Word (.docx)", "JSON Resume (.json)"]);
 
   const wordPromise = page.waitForEvent("download");
   await page.getByRole("menuitem", { name: "Word (.docx)" }).click();

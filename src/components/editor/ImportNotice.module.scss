@@ -1,0 +1,16 @@
+@use "../../styles/tokens" as *;
+
+.notice {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.375rem 1rem;
+  border-bottom: 1px solid $blue-200;
+  background-color: $blue-50;
+  color: $neutral-800;
+  font-size: 0.8125rem;
+}
+
+.notice > span {
+  flex: 1;
+}

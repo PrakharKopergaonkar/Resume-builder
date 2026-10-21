@@ -47,6 +47,9 @@ $danger: var(--danger); // destructive button background
 $danger-hover: var(--danger-hover);
 $danger-text: var(--danger-text);
 $danger-text-strong: var(--danger-text-strong);
+$warning-bg: var(--warning-bg); // notices that don't block anything
+$warning-border: var(--warning-border);
+$warning-text: var(--warning-text);
 $overlay: var(--overlay); // modal backdrop
 $placeholder: var(--placeholder);
 

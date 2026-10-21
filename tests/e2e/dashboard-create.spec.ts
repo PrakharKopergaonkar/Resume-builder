@@ -5,7 +5,6 @@ test("Create New Resume is usable again after going back from the editor", async
   const create = page.getByRole("button", { name: "Create New Resume" });
   const rows = page.getByTestId("resume-row");
   await expect(rows.first()).toBeVisible();
-  const before = await rows.count();
 
   await create.click();
   await expect(create).toBeDisabled(); // no double-create while it is working
@@ -16,7 +15,8 @@ test("Create New Resume is usable again after going back from the editor", async
   await page.goBack();
   await expect(page).toHaveURL(/\/$/);
   await expect(create).toBeEnabled();
-  await expect(rows).toHaveCount(before + 1); // the new resume shows up without a manual refresh
+  // the new resume shows up without a manual refresh (looked up by id: other specs share this account)
+  await expect(rows.filter({ has: page.locator(`a[href="/resume/${firstId}"]`) })).toHaveCount(1);
 
   // and it works a second time
   await create.click();

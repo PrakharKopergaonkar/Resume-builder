@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useState, useSyncExternalStore, useTransition } from "react";
-import { api, authApi, type CurrentUser } from "@/lib/api";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore, useTransition } from "react";
+import { api, authApi, importJsonResume, type CurrentUser } from "@/lib/api";
 import type { ResumeSummary } from "@/types/resume";
 import { Button, Icon, IconButton } from "@/components/ui";
 import { cx } from "@/lib/cx";
@@ -71,6 +71,27 @@ export function Dashboard() {
 
   const changeView = viewStore.set;
 
+  const fileInput = useRef<HTMLInputElement>(null);
+
+  /** Imports a JSON Resume file as a new resume and opens it; skipped sections are shown in the editor. */
+  const importFile = async (file: File | undefined) => {
+    if (!file) return;
+    setError(null);
+    if (file.size > 1_000_000) return setError("That file is too large (the limit is 1 MB).");
+    let json: unknown;
+    try {
+      json = JSON.parse(await file.text());
+    } catch {
+      return setError("That file isn't valid JSON. Choose a JSON Resume (.json) file.");
+    }
+    setCreating(true);
+    const result = await importJsonResume(file.name, json);
+    setCreating(false);
+    if (!result.ok) return setError(result.error);
+    const query = result.skipped.length ? `?skipped=${encodeURIComponent(result.skipped.join(", "))}` : "";
+    startNavigation(() => router.push(`/resume/${result.resume.id}${query}`));
+  };
+
   const create = async (sample = false) => {
     setCreating(true);
     try {
@@ -111,6 +132,21 @@ export function Dashboard() {
             <IconButton icon="list" label="List view" aria-pressed={view === "list"} active={view === "list"} onClick={() => changeView("list")} />
             <IconButton icon="grid" label="Grid view" aria-pressed={view === "grid"} active={view === "grid"} onClick={() => changeView("grid")} />
           </div>
+          <input
+            ref={fileInput}
+            type="file"
+            accept=".json,application/json"
+            hidden
+            aria-label="JSON Resume file"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              e.target.value = ""; // allow picking the same file again
+              void importFile(file);
+            }}
+          />
+          <Button onClick={() => fileInput.current?.click()} disabled={busy} title="Import a JSON Resume (.json) file as a new resume">
+            <Icon name="upload" /> Import
+          </Button>
           <Button variant="primary" onClick={() => create(false)} disabled={busy}>
             <Icon name="plus" /> Create New Resume
           </Button>

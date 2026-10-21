@@ -41,6 +41,7 @@ export const api = {
   remove: (id: string) => request<void>(`/api/resumes/${id}`, { method: "DELETE" }),
   pdfUrl: (id: string) => `/api/resumes/${id}/pdf`,
   docxUrl: (id: string) => `/api/resumes/${id}/docx`,
+  jsonResumeUrl: (id: string) => `/api/resumes/${id}/json-resume`,
   thumbnailUrl: (id: string, version: string) => `/api/resumes/${id}/thumbnail?v=${encodeURIComponent(version)}`,
   printUrl: (id: string) => `/print/${id}?autoprint=1`,
 };
@@ -66,3 +67,25 @@ export const authApi = {
   logout: () => fetch("/api/auth/logout", { method: "POST" }),
   me: () => request<CurrentUser>("/api/auth/me"),
 };
+
+export type ImportResult =
+  | { ok: true; resume: ResumeDoc; imported: string[]; skipped: string[] }
+  | { ok: false; error: string };
+
+/** Uploads a parsed JSON Resume file; answers with the new resume or a message to show the user. */
+export async function importJsonResume(fileName: string, resume: unknown): Promise<ImportResult> {
+  try {
+    const res = await fetch("/api/resumes/import", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ fileName, resume }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (res.status === 401 && typeof window !== "undefined") redirectToLogin();
+    if (!res.ok) return { ok: false, error: data.error ?? "Couldn't import that file." };
+    return { ok: true, resume: data.resume, imported: data.imported ?? [], skipped: data.skipped ?? [] };
+  } catch {
+    return { ok: false, error: "Couldn't import that file. Try again." };
+  }
+}
+

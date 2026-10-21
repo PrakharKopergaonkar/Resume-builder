@@ -1,6 +1,6 @@
 import "server-only";
 import { cookies } from "next/headers";
-import { getCurrentUser, type CurrentUser } from "@/lib/auth/guard";
+import { endSession, getCurrentUser, type CurrentUser } from "@/lib/auth/guard";
 import { SESSION_COOKIE } from "@/lib/auth/session";
 import { unauthorized, type HandlerContext, type Middleware } from "./handle";
 
@@ -12,7 +12,12 @@ import { unauthorized, type HandlerContext, type Middleware } from "./handle";
 /** Requires a signed-in user whose account still exists; otherwise answers 401. */
 export const withUser: Middleware<{ user: CurrentUser; sessionToken: string }> = async () => {
   const user = await getCurrentUser();
-  if (!user) return unauthorized();
+  if (!user) {
+    // A leftover cookie (account deleted, or a bad token) would keep the page proxy treating the browser as signed
+    // in and bouncing /login back to /, so drop it along with the 401.
+    if ((await cookies()).has(SESSION_COOKIE)) await endSession();
+    return unauthorized();
+  }
   // The token is the user's own session; the PDF/thumbnail renderer forwards it to the print page.
   const sessionToken = (await cookies()).get(SESSION_COOKIE)!.value;
   return { user, sessionToken };
